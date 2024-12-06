@@ -10,7 +10,7 @@ import java.util.Map;
 public class SignupScreen extends JDialog {
 
 	private CafeOnlineOrderSystemGUI mainGUI;
-    private cafe mycafe; //IMPLEMENT LATER
+    private cafe myCafe; //IMPLEMENT LATER
 
 	JLabel firstNameLabel;
 	JTextField firstNameText;
@@ -28,11 +28,13 @@ public class SignupScreen extends JDialog {
 
 
    		// xxx your codes
-	public SignupScreen(CafeOnlineOrderSystemGUI mainGui){
+	public SignupScreen(CafeOnlineOrderSystemGUI mainGui, cafe myCafe){
 		this.mainGUI = mainGui;
+        this.myCafe = myCafe;
 
         setLayout(new BorderLayout());
         setSize(600, 300);
+        setLocationRelativeTo(null);
         
         firstNameLabel = new JLabel();
         firstNameLabel.setText("First Name:");

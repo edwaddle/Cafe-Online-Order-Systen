@@ -78,6 +78,26 @@ public class CafeOnlineOrderSystemGUI extends JFrame{
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        exitButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                        dispose(); // Close the dialog when cancel is clicked
+                }
+        });
+
+        signUpButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e){
+                        new SignupScreen(CafeOnlineOrderSystemGUI.this, cafe.DB);
+                        dispose();
+                }
+        });
+        loginButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e){
+                        new LoginScreen(CafeOnlineOrderSystemGUI.this, cafe.DB.getUsers());
+                        dispose();
+                }
+        });
+    
         
         
 
