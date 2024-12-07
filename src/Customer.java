@@ -1,4 +1,3 @@
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,91 +23,105 @@ public class Customer implements User, Serializable {
         this.isActive = isActive;
         this.orderedItems = new ArrayList<>();
     }
-	// xxx your codes
-    
-    public String getFirstName(){
+
+    public String getFirstName() {
         return firstName;
     }
-    public String getLastName(){
+
+    public String getLastName() {
         return lastName;
     }
-    public String getEmail(){
+
+    public String getEmail() {
         return email;
     }
-    public String getUserName(){
+
+    public String getUserName() {
         return userName;
     }
-    public String getPassword(){
+
+    public String getPassword() {
         return password;
     }
-    public boolean isActive(){
+
+    public boolean isActive() {
         return isActive;
     }
-    public List<String> getOrderedItems(){
+
+    public List<String> getOrderedItems() {
         return orderedItems;
     }
-    public String getRole(){
+
+    public String getRole() {
         return "Customer";
     }
-    public void orderItems(MenuItem item) throws CustomExceptions.ItemNotAvailableException{
-        //A menu item is available only if the remaining count > 0 and in-season is true
-        if (item.isAvailable()){
+
+    public void orderItems(MenuItem item) throws CustomExceptions.ItemNotAvailableException {
+        if (item.isAvailable()) {
             orderedItems.add(item.getTitle());
+        } else {
+            throw new CustomExceptions.ItemNotAvailableException("Item is not available");
         }
-        
     }
-    public void setActive(boolean active){
+
+    public void setActive(boolean active) {
         this.isActive = active;
     }
-    public void setOrderedItems(List<String> orderedItems){
+
+    public void setOrderedItems(List<String> orderedItems) {
         this.orderedItems = orderedItems;
     }
-    public void setUserName(String userName){
+
+    public void setUserName(String userName) {
         this.userName = userName;
     }
-    public void cancelItem(MenuItem item){
+
+    public void cancelItem(MenuItem item) {
         orderedItems.remove(item.getTitle());
     }
-    public boolean canPlace(){
+
+    public boolean canPlace() {
         return orderedItems.size() <= MAX_ORDER_LIMIT;
     }
-    public String getDetails(){
-        //I have no clue
-        return "idk";
+
+    public String getDetails() {
+        return "Customer Details: " +
+                "First Name: " + firstName +
+                ", Last Name: " + lastName +
+                ", Email: " + email +
+                ", User Name: " + userName +
+                ", Active: " + isActive +
+                ", Ordered Items: " + orderedItems;
     }
-    
-    public String toDataString(){ // Convert the object to a string for saving to a file CHANGE LATER
+
+    public String toDataString() {
         StringBuilder dataString = new StringBuilder();
-    
-        // Append each field to the string, separating with a delimiter (e.g., comma)
-        dataString.append(firstName).append(",");
-        dataString.append(lastName).append(",");
-        dataString.append(email).append(",");
-        dataString.append(userName).append(",");
-        dataString.append(password).append(",");
-        dataString.append(isActive).append(",");
-        
-        // For ordered items, join them into a single string, separated by semicolons
+
+        dataString.append("Customer").append(";");
+        dataString.append(firstName).append(";");
+        dataString.append(lastName).append(";");
+        dataString.append(email).append(";");
+        dataString.append(userName).append(";");
+        dataString.append(password).append(";");
+        dataString.append(isActive).append(";");
+
         dataString.append(String.join(";", orderedItems));
-        
+
         return dataString.toString();
     }
 
     @Override
-    public int compareTo(User otherCustomer) { //CHANGE LATER
-        //Change to compare by some kind of variable
+    public int compareTo(User otherCustomer) {
         if (otherCustomer == null) {
             throw new NullPointerException("Cannot compare to null");
         }
 
-        // Compare first by firstName
         int firstNameComparison = this.firstName.compareTo(otherCustomer.getFirstName());
-        
-        // If firstName is the same, compare by lastName
+
         if (firstNameComparison == 0) {
             return this.lastName.compareTo(otherCustomer.getLastName());
         }
-        
+
         return firstNameComparison;
-}
+    }
 }
