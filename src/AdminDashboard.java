@@ -143,22 +143,100 @@ public class AdminDashboard extends JFrame {
             customerManagerDashboard.add(bottomPanel, BorderLayout.SOUTH);
 
 
-
-           
-
-/* 
-            getContentPane().removeAll(); // Remove previous components
-            getContentPane().add(customerManagerDashboard); // Add the new dashboard
-    
-            // Refresh the frame to display changes
-            revalidate();
-            repaint();
-            */
-
-
-
-
         }
+      });
+
+      menuManagerButton.addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent e){
+            JFrame menuManagerDash = new JFrame();
+            menuManagerDash.setLayout(new BorderLayout(20,20));
+            menuManagerDash.setSize(800,800);
+            menuManagerDash.setResizable(false);
+            menuManagerDash.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            menuManagerDash.setVisible(true);
+            //top
+            JPanel topPanel = new JPanel();
+            topPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 10, 10)); 
+            JLabel userLabel = new JLabel();
+            JButton logoutButton = new JButton("Logout");
+            userLabel.setText(admin.getFirstName() + " " + admin.getLastName() + " - " + admin.getUserName());
+            topPanel.add(userLabel);
+            topPanel.add(logoutButton);
+
+            menuManagerDash.add(topPanel, BorderLayout.NORTH);
+
+            //middle
+            JPanel leftPanel = new JPanel(new BorderLayout(10,10));
+            JPanel rightPanel = new JPanel(new BorderLayout(10,10));
+            JLabel activeLabel = new JLabel("Cafe Active Customers:");
+            JLabel inactiveLabel = new JLabel("Cafe Inactive Customers:");
+            JTextArea activeArea = new JTextArea();
+            activeArea.setPreferredSize(new Dimension(380,400));
+            String activeText = "";
+            String inactiveText = "";
+            for (Map.Entry<String,User> user: cafe.DB.getUsers().entrySet()){
+                if (user.getValue().isActive()){
+                    activeText += user.getValue().getLastName() + ", " + user.getValue().getFirstName() + "\n";
+                }
+                else{
+                    inactiveText += user.getValue().getLastName() + ", " + user.getValue().getFirstName() + "\n";
+                }
+                
+
+            }
+            activeArea.setText(activeText);
+            activeArea.setEditable(false);
+            JTextArea inactiveArea = new JTextArea();
+            inactiveArea.setPreferredSize(new Dimension(380,400));
+            inactiveArea.setText(inactiveText);
+            inactiveArea.setEditable(false);
+
+            JButton reactiveButton = new JButton("Re-activate");
+            JButton inactiveButton = new JButton("Inactive");
+
+            leftPanel.add(inactiveLabel, BorderLayout.NORTH);
+            leftPanel.add(inactiveArea, BorderLayout.CENTER);
+            leftPanel.add(reactiveButton, BorderLayout.SOUTH);
+            rightPanel.add(activeLabel, BorderLayout.NORTH);
+            rightPanel.add(activeArea, BorderLayout.CENTER);
+            rightPanel.add(inactiveButton  , BorderLayout.SOUTH);
+
+            menuManagerDash.add(leftPanel, BorderLayout.WEST);
+            menuManagerDash.add(rightPanel, BorderLayout.EAST);
+
+            //bottom
+            JPanel bottomPanel = new JPanel(new GridLayout(2,1,20,20));
+            JPanel buttonBottomPanel  = new JPanel(new GridLayout(1,3,30,30));
+            JButton addUserButton= new JButton("Add");
+            JButton editUserButton = new JButton("Edit");
+            JButton deleteUserButton = new JButton("Delete");
+            buttonBottomPanel.add(addUserButton);
+            buttonBottomPanel.add(editUserButton);
+            buttonBottomPanel.add(addUserButton);
+            buttonBottomPanel.add(deleteUserButton);
+            bottomPanel.add(buttonBottomPanel);
+
+            JPanel finalBottomPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 10));
+            JComboBox<String> sortOrderBox = new JComboBox<>(new String[]{"Ascending","Descending"});
+            finalBottomPanel.add(new JLabel("Sort Order:"));
+            finalBottomPanel.add(sortOrderBox);
+            JComboBox<String> searchOrSortBox = new JComboBox<>(new String[]{"Title","Description","ItemID","Price"});
+            finalBottomPanel.add(new JLabel("Search/Sort By:"));
+            finalBottomPanel.add(searchOrSortBox);
+            JButton sortButton = new JButton("Sort");
+            finalBottomPanel.add(sortButton);
+            JTextField searchTextField = new JTextField("");
+            searchTextField.setPreferredSize(new Dimension(200,30));
+            finalBottomPanel.add(searchTextField);
+            JButton searchButton = new JButton("Search");
+            finalBottomPanel.add(searchButton);
+            bottomPanel.add(finalBottomPanel, BorderLayout.SOUTH);
+
+
+            menuManagerDash.add(bottomPanel, BorderLayout.SOUTH);
+
+
+            }
       });
 
 

@@ -122,6 +122,6 @@ public class CafeOnlineOrderSystemGUI extends JFrame {
         JFrame frame = new JFrame();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(400, 400);
-        new CustomerDashboard(new Customer("asdf", "asdf", "asdf@g", "asdf1337", "asdf", true));
+        new AdminDashboard(new CafeOnlineOrderSystemGUI(), new Admin("asdf", "asdf", "asdf@g", "asdf1337", "asdf", true));
     }
 }
