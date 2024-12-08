@@ -130,7 +130,7 @@ public class AdminDashboard extends JFrame {
             JComboBox<String> sortOrderBox = new JComboBox<>(new String[]{"Ascending","Descending"});
             finalBottomPanel.add(new JLabel("Sort Order:"));
             finalBottomPanel.add(sortOrderBox);
-            JComboBox<String> searchOrSortBox = new JComboBox<>(new String[]{"Customer","Admin"});
+            JComboBox<String> searchOrSortBox = new JComboBox<>(new String[]{"Name","Username"});
             finalBottomPanel.add(new JLabel("Search/Sort By:"));
             finalBottomPanel.add(searchOrSortBox);
             JButton sortButton = new JButton("Sort");

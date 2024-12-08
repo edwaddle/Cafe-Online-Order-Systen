@@ -118,9 +118,10 @@ public class CafeOnlineOrderSystemGUI extends JFrame {
 
     public static void main(String[] args) {
         Map<String, User> myMap = new HashMap<>();
+        myMap.put("asdf", new Admin("asdf", "asdf", "asdf@g", "asdf1337", "asdf", true));
         JFrame frame = new JFrame();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(400, 400);
-        new AdminDashboard(new CafeOnlineOrderSystemGUI(), new Admin("asdf", "asdf", "asdf@g", "asdf1337", "asdf", true));
+        new CustomerDashboard(new Customer("asdf", "asdf", "asdf@g", "asdf1337", "asdf", true));
     }
 }
