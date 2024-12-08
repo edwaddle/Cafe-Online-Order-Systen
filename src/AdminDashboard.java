@@ -58,9 +58,12 @@ public class AdminDashboard extends JFrame {
 
       customerManagerButton.addActionListener(new ActionListener() {
         public void actionPerformed(ActionEvent e){
-            JPanel customerManagerDashboard = new JPanel();
+            JFrame customerManagerDashboard = new JFrame();
             customerManagerDashboard.setLayout(new BorderLayout(20,20));
-            customerManagerDashboard.setSize(800,1000);
+            customerManagerDashboard.setSize(800,800);
+            customerManagerDashboard.setResizable(false);
+            customerManagerDashboard.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            customerManagerDashboard.setVisible(true);
             //top
             JPanel topPanel = new JPanel();
             topPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 10, 10)); 
@@ -101,27 +104,56 @@ public class AdminDashboard extends JFrame {
             JButton reactiveButton = new JButton("Re-activate");
             JButton inactiveButton = new JButton("Inactive");
 
-            leftPanel.add(activeLabel, BorderLayout.NORTH);
-            leftPanel.add(activeArea, BorderLayout.CENTER);
+            leftPanel.add(inactiveLabel, BorderLayout.NORTH);
+            leftPanel.add(inactiveArea, BorderLayout.CENTER);
             leftPanel.add(reactiveButton, BorderLayout.SOUTH);
-            rightPanel.add(inactiveLabel, BorderLayout.NORTH);
-            rightPanel.add(inactiveArea, BorderLayout.CENTER);
+            rightPanel.add(activeLabel, BorderLayout.NORTH);
+            rightPanel.add(activeArea, BorderLayout.CENTER);
             rightPanel.add(inactiveButton  , BorderLayout.SOUTH);
 
             customerManagerDashboard.add(leftPanel, BorderLayout.WEST);
             customerManagerDashboard.add(rightPanel, BorderLayout.EAST);
 
             //bottom
-            
+            JPanel bottomPanel = new JPanel(new GridLayout(2,1,20,20));
+            JPanel buttonBottomPanel  = new JPanel(new GridLayout(1,3,30,30));
+            JButton addUserButton= new JButton("Add");
+            JButton editUserButton = new JButton("Edit");
+            JButton deleteUserButton = new JButton("Delete");
+            buttonBottomPanel.add(addUserButton);
+            buttonBottomPanel.add(editUserButton);
+            buttonBottomPanel.add(addUserButton);
+            buttonBottomPanel.add(deleteUserButton);
+            bottomPanel.add(buttonBottomPanel);
+
+            JPanel finalBottomPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
+            JComboBox<String> sortOrderBox = new JComboBox<>(new String[]{"Ascending","Descending"});
+            finalBottomPanel.add(new JLabel("Sort Order:"));
+            finalBottomPanel.add(sortOrderBox);
+            JComboBox<String> searchOrSortBox = new JComboBox<>(new String[]{"Customer","Admin"});
+            finalBottomPanel.add(new JLabel("Search/Sort By:"));
+            finalBottomPanel.add(searchOrSortBox);
+            JButton sortButton = new JButton("Sort");
+            finalBottomPanel.add(sortButton);
+            JTextField sortTextField = new JTextField("");
+            sortTextField.setPreferredSize(new Dimension(250,30));
+            finalBottomPanel.add(sortTextField);
+            bottomPanel.add(finalBottomPanel);
+
+            customerManagerDashboard.add(bottomPanel, BorderLayout.SOUTH);
+
+
+
            
 
-
+/* 
             getContentPane().removeAll(); // Remove previous components
             getContentPane().add(customerManagerDashboard); // Add the new dashboard
     
             // Refresh the frame to display changes
             revalidate();
             repaint();
+            */
 
 
 

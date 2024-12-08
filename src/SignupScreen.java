@@ -108,9 +108,7 @@ public class SignupScreen extends JDialog {
                     JOptionPane.showMessageDialog(SignupScreen.this, "Your username is: " + userName);
                     new CafeOnlineOrderSystemGUI();
                     dispose();
-                } else {
-                    JOptionPane.showMessageDialog(SignupScreen.this, "Invalid input");
-                }
+                } 
             }
         });
 
@@ -120,12 +118,16 @@ public class SignupScreen extends JDialog {
 
     private boolean validateInput(String firstName, String lastName, String email, String password) {
         if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() || password.isEmpty()) {
-            return false;
+            JOptionPane.showMessageDialog(SignupScreen.this, "Fill out all fields");
         }
         if (!isValidEmail(email)) {
-            return false;
+            JOptionPane.showMessageDialog(SignupScreen.this, "Invalid Email");
         }
-        if (!isValidPassword(password)) {
+        try {
+            isValidPassword(password);
+        }
+        catch (Exception e){
+            JOptionPane.showMessageDialog(SignupScreen.this, e.getMessage());
             return false;
         }
         return true;
