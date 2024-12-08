@@ -46,7 +46,7 @@ public class SignupScreen extends JDialog {
         emailText = new JTextField("");
 
         passwordLabel = new JLabel();
-        passwordLabel.setText("Password:");
+        passwordLabel.setText("Password: (At least 4 letters)");
         passwordField = new JPasswordField("");
 
         roleLabel = new JLabel();
@@ -99,12 +99,13 @@ public class SignupScreen extends JDialog {
                     User newUser;
                     if (role.equals("Admin")) {
                         newUser = new Admin(firstName, lastName, email, userName, password, true);
+                        myCafe.addUser(userName, newUser);
                     } else {
                         newUser = new Customer(firstName, lastName, email, userName, password, true);
+                        myCafe.addUser(userName, newUser);
                     }
-                    myCafe.addUser(userName, newUser);
                     myCafe.saveData();
-                    JOptionPane.showMessageDialog(SignupScreen.this, "User registered successfully. Your username is: " + userName);
+                    JOptionPane.showMessageDialog(SignupScreen.this, "Your username is: " + userName);
                     new CafeOnlineOrderSystemGUI();
                     dispose();
                 } else {
@@ -138,31 +139,31 @@ public class SignupScreen extends JDialog {
     }
 
     private boolean isValidPassword(String password) {
-        if (password.length() < 8) {
+        if (password.length() < 4) {
             return false;
         }
+        /* don't think we need these requirements
         if (!password.matches(".*[A-Z].*")) {
             return false;
         }
         if (!password.matches(".*[a-z].*")) {
             return false;
         }
-        if (!password.matches(".*\\d.*")) {
-            return false;
-        }
         if (!password.matches(".*[!@#$%^&*()].*")) {
             return false;
         }
+        */
         return true;
     }
 
     private String generateUserName(String firstName) {
-        String baseUserName = firstName.toLowerCase();
-        String userName;
-        do {
-            String randomDigits = Utils.generateRandomNumber(4);
-            userName = baseUserName + randomDigits;
-        } while (myCafe.getUsers().containsKey(userName));
+        String userName = "";
+        String randomDigit = "";
+        for (int i = 0; i < 4; i++){
+            randomDigit += (int)(Math.random()*10);
+        }
+
+        userName = firstName.toLowerCase() + randomDigit;
         return userName;
     }
 }
