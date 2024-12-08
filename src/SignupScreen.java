@@ -138,21 +138,18 @@ public class SignupScreen extends JDialog {
         return matcher.matches();
     }
 
-    private boolean isValidPassword(String password) {
-        if (password.length() < 4) {
-            return false;
-        }
-        /* don't think we need these requirements
-        if (!password.matches(".*[A-Z].*")) {
-            return false;
-        }
-        if (!password.matches(".*[a-z].*")) {
-            return false;
-        }
-        if (!password.matches(".*[!@#$%^&*()].*")) {
-            return false;
-        }
-        */
+    private boolean isValidPassword(String password) throws PasswordException {
+        if (password.length() < 8) {
+            throw new Minimum8CharactersRequired("Password must be 8 characters long");
+         } else if (!password.matches(".*\\d.*")) {
+            throw new NumberCharacterMissing("Password must contain at least one number");
+         } else if (!password.matches(".*[a-z].*")) {
+            throw new LowerCaseCharacterMissing("Password must require a lowercase letter");
+         } else if (!password.matches(".*[A-Z].*")) {
+            throw new UpperCaseCharacterMissing("Password must require a uppercase letter");
+         } else if (!password.matches(".*[!@#$%^&*()].*")) {
+            throw new SpecialCharacterMissing("Password require one special letter (!@#$%^&*())");
+         }
         return true;
     }
 

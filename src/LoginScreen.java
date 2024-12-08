@@ -20,17 +20,22 @@ public class LoginScreen extends JDialog {
         this.users = users;
         UserManager userManager = new UserManager();
 
+        JPanel tempPanel = new JPanel();
+
+        tempPanel.setLayout(new BorderLayout());
         setLayout(new BorderLayout());
-        setSize(600, 300);
+        tempPanel.setSize(600, 300);
+        setSize(600,300);
         setLocationRelativeTo(parent);
 
         userLabel = new JLabel();
         userLabel.setText("Username:");
-        userText = new JTextField(""); // automatically editable
+        userText = new JTextField(100); // automatically editable
 
         passwordLabel = new JLabel();
         passwordLabel.setText("Password:");
         passwordText = new JPasswordField("");
+        passwordText.setColumns(1);
 
         loginButton = new JButton("Login");
         cancelButton = new JButton("Cancel");
@@ -48,10 +53,11 @@ public class LoginScreen extends JDialog {
         buttonPanel.add(cancelButton);
 
         // Add panels to the main dialog layout
-        add(inputPanel, BorderLayout.CENTER);
-        add(buttonPanel, BorderLayout.SOUTH);
-        add(new JPanel(), BorderLayout.EAST);
-        add(new JPanel(), BorderLayout.WEST);
+        tempPanel.add(inputPanel, BorderLayout.CENTER);
+        tempPanel.add(buttonPanel, BorderLayout.SOUTH);
+        tempPanel.add(new JPanel(), BorderLayout.EAST);
+        tempPanel.add(new JPanel(), BorderLayout.WEST);
+        add(tempPanel, BorderLayout.CENTER);
 
         // Button Stuff
         loginButton.addActionListener(new ActionListener() {
