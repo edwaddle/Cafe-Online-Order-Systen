@@ -72,15 +72,22 @@ public class MenuManagementScreen extends JFrame {
         });
         mainPanel.add(logoutButton, BorderLayout.SOUTH);
 
-        // Add buttons for adding and deleting items
+        // Add buttons for adding, editing, and deleting items
         JPanel buttonPanel = new JPanel(new FlowLayout());
         JButton addButton = new JButton("Add Item");
+        JButton editButton = new JButton("Edit Item");
         JButton deleteButton = new JButton("Delete Item");
         JButton moveButton = new JButton("Move Item");
 
         addButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 addMenuItem();
+            }
+        });
+
+        editButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                editMenuItem();
             }
         });
 
@@ -97,6 +104,7 @@ public class MenuManagementScreen extends JFrame {
         });
 
         buttonPanel.add(addButton);
+        buttonPanel.add(editButton);
         buttonPanel.add(deleteButton);
         buttonPanel.add(moveButton);
         mainPanel.add(buttonPanel, BorderLayout.NORTH);
@@ -288,6 +296,73 @@ public class MenuManagementScreen extends JFrame {
             } catch (CustomExceptions.ItemAlreadyExistsException e) {
                 JOptionPane.showMessageDialog(this, "Item already exists!");
             }
+        }
+    }
+
+    private void editMenuItem() {
+        String selectedText = getSelectedText(inSeasonPane);
+        if (selectedText == null) {
+            selectedText = getSelectedText(outOfSeasonPane);
+        }
+
+        if (selectedText != null && nameToItemIDMap.containsKey(selectedText)) {
+            String itemID = nameToItemIDMap.get(selectedText);
+            MenuItem itemToEdit = findMenuItemByID(itemID);
+            if (itemToEdit != null) {
+                JTextField titleField = new JTextField(itemToEdit.getTitle(), 10);
+                JTextField itemIDField = new JTextField(itemToEdit.getItemID(), 10);
+                JTextField descriptionField = new JTextField(itemToEdit.getDescription(), 10);
+                JTextField priceField = new JTextField(String.valueOf(itemToEdit.getPrice()), 10);
+                JTextField countField = new JTextField(String.valueOf(itemToEdit.getCount()), 10);
+                JComboBox<String> menuTypeComboBox = new JComboBox<>(new String[]{"Diner", "Pancake"});
+                menuTypeComboBox.setSelectedItem(itemToEdit.getMenuType());
+                JComboBox<String> statusComboBox = new JComboBox<>(new String[]{"In Season", "Out of Season"});
+                statusComboBox.setSelectedItem(itemToEdit.isCurrent() ? "In Season" : "Out of Season");
+
+                JPanel panel = new JPanel(new GridLayout(7, 2));
+                panel.add(new JLabel("Menu Type:"));
+                panel.add(menuTypeComboBox);
+                panel.add(new JLabel("Title:"));
+                panel.add(titleField);
+                panel.add(new JLabel("Item ID:"));
+                panel.add(itemIDField);
+                panel.add(new JLabel("Description:"));
+                panel.add(descriptionField);
+                panel.add(new JLabel("Price:"));
+                panel.add(priceField);
+                panel.add(new JLabel("Count:"));
+                panel.add(countField);
+                panel.add(new JLabel("Status:"));
+                panel.add(statusComboBox);
+
+                int result = JOptionPane.showConfirmDialog(null, panel, "Edit Menu Item", JOptionPane.OK_CANCEL_OPTION);
+                if (result == JOptionPane.OK_OPTION) {
+                    String title = titleField.getText();
+                    itemID = itemIDField.getText();
+                    String description = descriptionField.getText();
+                    float price = Float.parseFloat(priceField.getText());
+                    int count = Integer.parseInt(countField.getText());
+                    String menuType = (String) menuTypeComboBox.getSelectedItem();
+                    boolean isCurrent = statusComboBox.getSelectedItem().equals("In Season");
+
+                    MenuItem editedItem;
+                    if (menuType.equals("Diner")) {
+                        editedItem = new DinerMenuItem(title, itemID, description, price, count, isCurrent);
+                    } else {
+                        editedItem = new PancakeMenuItem(title, itemID, description, price, count, isCurrent);
+                    }
+
+                    try {
+                        menuManager.updateMenuItem(itemToEdit, editedItem);
+                        cafe.DB.saveData();
+                        loadMenuItems();
+                    } catch (CustomExceptions.ItemNotFoundException e) {
+                        JOptionPane.showMessageDialog(this, "Item not found!");
+                    }
+                }
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "No item selected!");
         }
     }
 

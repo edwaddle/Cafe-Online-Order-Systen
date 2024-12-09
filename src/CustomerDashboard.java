@@ -3,7 +3,6 @@ import javax.swing.text.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.List;
-import java.util.Map;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.awt.event.ActionEvent;
@@ -57,8 +56,6 @@ public class CustomerDashboard extends JFrame {
         upperInnerLeftPanel.add(bOrLCheckBox);
         upperInnerLeftPanel.add(dinnerCheckbox);
         innerLeftPanel.add(upperInnerLeftPanel);
-
-        
 
         cartPane = new JTextPane();
         cartPane.setPreferredSize(new Dimension(380, 200));
@@ -122,9 +119,7 @@ public class CustomerDashboard extends JFrame {
         tipPanel.add(twentyTipButton);
         innerLeftPanel.add(tipPanel);
 
-
         leftPanel.add(innerLeftPanel);
-
 
         //Right Panel
         JPanel rightPanel = new JPanel();
@@ -185,72 +180,36 @@ public class CustomerDashboard extends JFrame {
         JComboBox<String> sortOrderBox = new JComboBox<>(new String[]{"Ascending","Descending"});
         finalBottomPanel.add(new JLabel("Sort Order:"));
         finalBottomPanel.add(sortOrderBox);
-        JComboBox<String> searchOrSortBox = new JComboBox<>(new String[]{"Title","Description","ItemID","Price"});
+        sortByComboBox = new JComboBox<>(new String[]{"Title","Description","ItemID","Price"});
         finalBottomPanel.add(new JLabel("Search/Sort By:"));
-        finalBottomPanel.add(searchOrSortBox);
+        finalBottomPanel.add(sortByComboBox);
         JButton sortButton = new JButton("Sort");
         finalBottomPanel.add(sortButton);
-        JTextField searchTextField = new JTextField("");
-        searchTextField.setPreferredSize(new Dimension(200,30));
-        finalBottomPanel.add(searchTextField);
+        searchField = new JTextField("");
+        searchField.setPreferredSize(new Dimension(200,30));
+        finalBottomPanel.add(searchField);
         JButton searchButton = new JButton("Search");
         finalBottomPanel.add(searchButton);
         bottomPanel.add(finalBottomPanel, BorderLayout.SOUTH);
-
 
         add(bottomPanel, BorderLayout.SOUTH);
         add(leftPanel, BorderLayout.WEST);
         add(rightPanel, BorderLayout.EAST);
 
-
-/* 
-
-        breakfastCheckbox = new JCheckBox("Breakfast");
+        // Initialize checkboxes for filters
+        breakfastCheckbox = new JCheckBox("Breakfast/Lunch");
         dinnerCheckbox = new JCheckBox("Dinner");
 
-        tipPanel = new JPanel();
-        tipGroup = new ButtonGroup();
-        noTipButton = new JRadioButton("No Tip");
-        tenPercentButton = new JRadioButton("10% Tip");
-        fifteenPercentButton = new JRadioButton("15% Tip");
-        twentyPercentButton = new JRadioButton("20% Tip");
-
-        tipGroup.add(noTipButton);
-        tipGroup.add(tenPercentButton);
-        tipGroup.add(fifteenPercentButton);
-        tipGroup.add(twentyPercentButton);
-
-        tipPanel.add(noTipButton);
-        tipPanel.add(tenPercentButton);
-        tipPanel.add(fifteenPercentButton);
-        tipPanel.add(twentyPercentButton);
-
-        sortByComboBox = new JComboBox<>(new String[]{"title", "description", "itemID", "price"});
-        searchField = new JTextField(20);
-
-        // Add components to the frame
-        JPanel mainPanel = new JPanel(new BorderLayout());
+        // Add checkboxes to the filter panel
         JPanel filterPanel = new JPanel();
         filterPanel.add(breakfastCheckbox);
         filterPanel.add(dinnerCheckbox);
-        filterPanel.add(new JLabel("Sort By:"));
-        filterPanel.add(sortByComboBox);
-        filterPanel.add(new JLabel("Search:"));
-        filterPanel.add(searchField);
-
-        mainPanel.add(filterPanel, BorderLayout.NORTH);
-        mainPanel.add(new JScrollPane(menuPane), BorderLayout.CENTER);
-        mainPanel.add(new JScrollPane(cartPane), BorderLayout.EAST);
-        mainPanel.add(new JScrollPane(billPane), BorderLayout.SOUTH);
-        mainPanel.add(tipPanel, BorderLayout.WEST);
-
-        add(mainPanel);
-        
+        add(filterPanel, BorderLayout.NORTH);
 
         // Load menu items
         loadMenuItems();
 
-        // Action listeners
+        // Action listeners for checkboxes
         breakfastCheckbox.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 loadMenuItems();
@@ -260,89 +219,6 @@ public class CustomerDashboard extends JFrame {
         dinnerCheckbox.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 loadMenuItems();
-            }
-        });
-
-        sortByComboBox.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                loadMenuItems();
-            }
-        });
-
-        searchField.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                loadMenuItems();
-            }
-        });
-
-        // Add MouseListener to menuPane for double-click events
-        menuPane.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 2) {
-                    int pos = menuPane.viewToModel(e.getPoint());
-                    if (pos >= 0) {
-                        try {
-                            int start = menuDoc.getParagraphElement(pos).getStartOffset();
-                            int end = menuDoc.getParagraphElement(pos).getEndOffset();
-                            String selectedText = menuPane.getText(start, end - start).trim();
-                            MenuItem selectedItem = findMenuItemByTitle(selectedText);
-                            if (selectedItem != null) {
-                                showItemDetails(selectedItem);
-                            }
-                        } catch (BadLocationException ex) {
-                            ex.printStackTrace();
-                        }
-                    }
-                }
-            }
-        });
-
-        // Add MouseListener to cartPane for double-click events
-        cartPane.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 2) {
-                    int pos = cartPane.viewToModel(e.getPoint());
-                    if (pos >= 0) {
-                        try {
-                            int start = cartDoc.getParagraphElement(pos).getStartOffset();
-                            int end = cartDoc.getParagraphElement(pos).getEndOffset();
-                            String selectedText = cartPane.getText(start, end - start).trim();
-                            MenuItem selectedItem = findMenuItemByTitle(selectedText);
-                            if (selectedItem != null) {
-                                removeItemFromCart(selectedItem);
-                            }
-                        } catch (BadLocationException ex) {
-                            ex.printStackTrace();
-                        }
-                    }
-                }
-            }
-        });
-
-        // Add ActionListener to tip buttons
-        noTipButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                updateBill();
-            }
-        });
-
-        tenPercentButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                updateBill();
-            }
-        });
-
-        fifteenPercentButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                updateBill();
-            }
-        });
-
-        twentyPercentButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                updateBill();
             }
         });
 
@@ -446,8 +322,14 @@ public class CustomerDashboard extends JFrame {
         } catch (BadLocationException e) {
             e.printStackTrace();
         }
-            */
-        setVisible(true);
     }
-        
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                new CustomerDashboard(new Customer("John", "Doe", "john.doe@example.com", "johndoe", "password", true));
+            }
+        });
+    }
 }
