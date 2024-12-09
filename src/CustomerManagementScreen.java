@@ -22,14 +22,98 @@ public class CustomerManagementScreen extends JFrame {
     private JComboBox<String> sortByComboBox;
     private JTextField searchField;
 
-    public CustomerManagementScreen(User currentUser) {
+   public CustomerManagementScreen(User currentUser) {
         this.currentUser = currentUser;
         this.userManager = new UserManager();
 
+        JFrame customerManagerDashboard = new JFrame();
+        customerManagerDashboard.setLayout(new BorderLayout(20,20));
+        customerManagerDashboard.setSize(800,800);
+        customerManagerDashboard.setResizable(false);
+        customerManagerDashboard.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        customerManagerDashboard.setVisible(true);
+        //top
+        JPanel topPanel = new JPanel();
+        topPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 10, 10)); 
+        JLabel userLabel = new JLabel();
+        JButton logoutButton = new JButton("Logout");
+        userLabel.setText(currentUser.getFirstName() + " " + currentUser.getLastName() + " - " + currentUser.getUserName());
+        topPanel.add(userLabel);
+        topPanel.add(logoutButton);
+
+        customerManagerDashboard.add(topPanel, BorderLayout.NORTH);
+
+        //middle
+        JPanel leftPanel = new JPanel(new BorderLayout(10,10));
+        JPanel rightPanel = new JPanel(new BorderLayout(10,10));
+        JLabel activeLabel = new JLabel("Cafe Active Customers:");
+        JLabel inactiveLabel = new JLabel("Cafe Inactive Customers:");
+        JTextArea activeArea = new JTextArea();
+        activeArea.setPreferredSize(new Dimension(380,400));
+        String activeText = "";
+        String inactiveText = "";
+        for (Map.Entry<String,User> user: cafe.DB.getUsers().entrySet()){
+            if (user.getValue().isActive()){
+                activeText += user.getValue().getLastName() + ", " + user.getValue().getFirstName() + "\n";
+            }
+            else{
+                inactiveText += user.getValue().getLastName() + ", " + user.getValue().getFirstName() + "\n";
+            }
+
+
+        }
+        activeArea.setText(activeText);
+        activeArea.setEditable(false);
+        JTextArea inactiveArea = new JTextArea();
+        inactiveArea.setPreferredSize(new Dimension(380,400));
+        inactiveArea.setText(inactiveText);
+        inactiveArea.setEditable(false);
+
+        JButton reactiveButton = new JButton("Re-activate");
+        JButton inactiveButton = new JButton("Inactive");
+
+        leftPanel.add(inactiveLabel, BorderLayout.NORTH);
+        leftPanel.add(inactiveArea, BorderLayout.CENTER);
+        leftPanel.add(reactiveButton, BorderLayout.SOUTH);
+        rightPanel.add(activeLabel, BorderLayout.NORTH);
+        rightPanel.add(activeArea, BorderLayout.CENTER);
+        rightPanel.add(inactiveButton  , BorderLayout.SOUTH);
+
+        customerManagerDashboard.add(leftPanel, BorderLayout.WEST);
+        customerManagerDashboard.add(rightPanel, BorderLayout.EAST);
+
+        //bottom
+        JPanel bottomPanel = new JPanel(new GridLayout(2,1,20,20));
+        JPanel buttonBottomPanel  = new JPanel(new GridLayout(1,3,30,30));
+        JButton addButton= new JButton("Add");
+        JButton editUserButton = new JButton("Edit");
+        JButton deleteButton = new JButton("Delete");
+        buttonBottomPanel.add(addButton);
+        buttonBottomPanel.add(editUserButton);
+        buttonBottomPanel.add(addButton);
+        buttonBottomPanel.add(deleteButton);
+        bottomPanel.add(buttonBottomPanel);
+        JPanel finalBottomPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
+        JComboBox<String> sortOrderBox = new JComboBox<>(new String[]{"Ascending","Descending"});
+        finalBottomPanel.add(new JLabel("Sort Order:"));
+        finalBottomPanel.add(sortOrderBox);
+        JComboBox<String> searchOrSortBox = new JComboBox<>(new String[]{"Customer","Admin"});
+        finalBottomPanel.add(new JLabel("Search/Sort By:"));
+        finalBottomPanel.add(searchOrSortBox);
+        JButton sortButton = new JButton("Sort");
+        finalBottomPanel.add(sortButton);
+        JTextField sortTextField = new JTextField("");
+        sortTextField.setPreferredSize(new Dimension(250,30));
+        finalBottomPanel.add(sortTextField);
+        bottomPanel.add(finalBottomPanel);
+        customerManagerDashboard.add(bottomPanel, BorderLayout.SOUTH);
+
+        /* 
+
         setTitle("Customer Management");
-        setSize(800, 800);
+        setSize(800, 600);
         setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         // Initialize components
         inactiveCustomersPane = new JTextPane();
@@ -41,119 +125,67 @@ public class CustomerManagementScreen extends JFrame {
         sortByComboBox = new JComboBox<>(new String[]{"firstName", "lastName", "email", "userName"});
         searchField = new JTextField(20);
 
-        // Top Panel
-        JPanel topPanel = new JPanel();
-        topPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 10, 10));
-        JLabel userLabel = new JLabel();
+        // Add components to the frame
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        JPanel filterPanel = new JPanel();
+        filterPanel.add(new JLabel("User Type:"));
+        filterPanel.add(userTypeComboBox);
+        filterPanel.add(new JLabel("Sort By:"));
+        filterPanel.add(sortByComboBox);
+        filterPanel.add(new JLabel("Search:"));
+        filterPanel.add(searchField);
+
+        mainPanel.add(filterPanel, BorderLayout.NORTH);
+        mainPanel.add(new JScrollPane(activeCustomersPane), BorderLayout.CENTER);
+        mainPanel.add(new JScrollPane(inactiveCustomersPane), BorderLayout.SOUTH);
+
+        
+
+        // Add a logout button
         JButton logoutButton = new JButton("Logout");
-        userLabel.setText(currentUser.getFirstName() + " " + currentUser.getLastName() + " - " + currentUser.getUserName());
-        topPanel.add(userLabel);
-        topPanel.add(logoutButton);
-        add(topPanel, BorderLayout.NORTH);
+        
+        mainPanel.add(logoutButton, BorderLayout.SOUTH);
 
-        // Middle Panel
-        JPanel middlePanel = new JPanel(new GridLayout(1, 2, 20, 20));
-        JPanel leftPanel = new JPanel(new BorderLayout(10, 10));
-        JPanel rightPanel = new JPanel(new BorderLayout(10, 10));
-        JLabel activeLabel = new JLabel("Cafe Active Customers:");
-        JLabel inactiveLabel = new JLabel("Cafe Inactive Customers:");
-        JTextArea activeArea = new JTextArea();
-        activeArea.setPreferredSize(new Dimension(380, 400));
-        JTextArea inactiveArea = new JTextArea();
-        inactiveArea.setPreferredSize(new Dimension(380, 400));
-        JButton reactiveButton = new JButton("Re-activate");
-        JButton inactiveButton = new JButton("Inactive");
+        // Add buttons for adding and deleting users
+        JPanel buttonPanel = new JPanel(new FlowLayout());
+        JButton addButton = new JButton("Add User");
+        JButton deleteButton = new JButton("Delete User");
+        JButton moveButton = new JButton("Move User");
+        */
 
-        leftPanel.add(inactiveLabel, BorderLayout.NORTH);
-        leftPanel.add(new JScrollPane(inactiveArea), BorderLayout.CENTER);
-        leftPanel.add(reactiveButton, BorderLayout.SOUTH);
-        rightPanel.add(activeLabel, BorderLayout.NORTH);
-        rightPanel.add(new JScrollPane(activeArea), BorderLayout.CENTER);
-        rightPanel.add(inactiveButton, BorderLayout.SOUTH);
-        middlePanel.add(leftPanel);
-        middlePanel.add(rightPanel);
-        add(middlePanel, BorderLayout.CENTER);
-
-        // Bottom Panel
-        JPanel bottomPanel = new JPanel(new GridLayout(2, 1, 20, 20));
-        JPanel buttonBottomPanel = new JPanel(new GridLayout(1, 3, 30, 30));
-        JButton addButton = new JButton("Add");
-        JButton editUserButton = new JButton("Edit");
-        JButton deleteButton = new JButton("Delete");
-        buttonBottomPanel.add(addButton);
-        buttonBottomPanel.add(editUserButton);
-        buttonBottomPanel.add(deleteButton);
-        bottomPanel.add(buttonBottomPanel);
-
-        JPanel finalBottomPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
-        JComboBox<String> sortOrderBox = new JComboBox<>(new String[]{"Ascending", "Descending"});
-        finalBottomPanel.add(new JLabel("Sort Order:"));
-        finalBottomPanel.add(sortOrderBox);
-        JComboBox<String> searchOrSortBox = new JComboBox<>(new String[]{"Customer", "Admin"});
-        finalBottomPanel.add(new JLabel("Search/Sort By:"));
-        finalBottomPanel.add(searchOrSortBox);
-        JButton sortButton = new JButton("Sort");
-        finalBottomPanel.add(sortButton);
-        JTextField sortTextField = new JTextField("");
-        sortTextField.setPreferredSize(new Dimension(250, 30));
-        finalBottomPanel.add(sortTextField);
-        bottomPanel.add(finalBottomPanel);
-        add(bottomPanel, BorderLayout.SOUTH);
-
-        // Load users
-        loadUsers();
-
-        // Action listeners
         logoutButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                dispose();
                 new AdminDashboard(null, currentUser);
+                dispose();
             }
         });
-
         addButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                addUser();
-            }
-        });
-
-        editUserButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                editUser();
+                new addCustomer();
+                dispose();
             }
         });
 
         deleteButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 deleteUser();
+                dispose();
             }
         });
 
-        reactiveButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                moveUser(inactiveArea, true);
-            }
-        });
 
-        inactiveButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                moveUser(activeArea, false);
-            }
-        });
 
-        sortButton.addActionListener(new ActionListener() {
+        // Load users
+        loadUsers();
+
+        // Action listeners
+        userTypeComboBox.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 loadUsers();
             }
         });
 
-        searchOrSortBox.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                loadUsers();
-            }
-        });
-
-        sortOrderBox.addActionListener(new ActionListener() {
+        sortByComboBox.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 loadUsers();
             }
@@ -166,16 +198,16 @@ public class CustomerManagementScreen extends JFrame {
         });
 
         // Add MouseListener to activeCustomersPane for double-click events
-        activeArea.addMouseListener(new MouseAdapter() {
+        activeCustomersPane.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
-                    int pos = activeArea.viewToModel(e.getPoint());
+                    int pos = activeCustomersPane.viewToModel(e.getPoint());
                     if (pos >= 0) {
                         try {
                             int start = activeUsersDoc.getParagraphElement(pos).getStartOffset();
                             int end = activeUsersDoc.getParagraphElement(pos).getEndOffset();
-                            String selectedText = activeArea.getText(start, end - start).trim();
+                            String selectedText = activeCustomersPane.getText(start, end - start).trim();
                             User selectedUser = findUserByUserName(selectedText);
                             if (selectedUser != null) {
                                 showUserDetails(selectedUser);
@@ -189,16 +221,16 @@ public class CustomerManagementScreen extends JFrame {
         });
 
         // Add MouseListener to inactiveCustomersPane for double-click events
-        inactiveArea.addMouseListener(new MouseAdapter() {
+        inactiveCustomersPane.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
-                    int pos = inactiveArea.viewToModel(e.getPoint());
+                    int pos = inactiveCustomersPane.viewToModel(e.getPoint());
                     if (pos >= 0) {
                         try {
                             int start = inactiveUsersDoc.getParagraphElement(pos).getStartOffset();
                             int end = inactiveUsersDoc.getParagraphElement(pos).getEndOffset();
-                            String selectedText = inactiveArea.getText(start, end - start).trim();
+                            String selectedText = inactiveCustomersPane.getText(start, end - start).trim();
                             User selectedUser = findUserByUserName(selectedText);
                             if (selectedUser != null) {
                                 showUserDetails(selectedUser);
@@ -260,6 +292,7 @@ public class CustomerManagementScreen extends JFrame {
                 "User Details", JOptionPane.INFORMATION_MESSAGE);
     }
 
+    /* 
     private void addUser() {
         JTextField firstNameField = new JTextField(10);
         JTextField lastNameField = new JTextField(10);
@@ -281,140 +314,121 @@ public class CustomerManagementScreen extends JFrame {
         panel.add(passwordField);
         panel.add(new JLabel("Status:"));
         panel.add(statusComboBox);
+        */
+        private class addCustomer extends JFrame {
 
-        int result = JOptionPane.showConfirmDialog(null, panel, "Add User", JOptionPane.OK_CANCEL_OPTION);
-        if (result == JOptionPane.OK_OPTION) {
-            String firstName = firstNameField.getText();
-            String lastName = lastNameField.getText();
-            String email = emailField.getText();
-            String password = new String(passwordField.getPassword());
-            String role = (String) userTypeComboBox.getSelectedItem();
-            boolean isActive = statusComboBox.getSelectedItem().equals("Active");
-
-            String userName = generateUserName(firstName);
-            User newUser;
-            if (role.equals("Admin")) {
-                newUser = new Admin(firstName, lastName, email, userName, password, isActive);
-            } else {
-                newUser = new Customer(firstName, lastName, email, userName, password, isActive);
-            }
-
-            try {
-                userManager.addUser(cafe.DB.getUsers(), newUser);
-                cafe.DB.saveData();
-                loadUsers();
-            } catch (CustomExceptions.UserAlreadyExistsException e) {
-                JOptionPane.showMessageDialog(this, "User already exists!");
-            }
-        }
-    }
-
-    private void editUser() {
-        String selectedText = getSelectedText(activeCustomersPane);
-        if (selectedText == null) {
-            selectedText = getSelectedText(inactiveCustomersPane);
-        }
-
-        if (selectedText != null) {
-            User userToEdit = findUserByUserName(selectedText);
-            if (userToEdit != null) {
-                JTextField firstNameField = new JTextField(userToEdit.getFirstName(), 10);
-                JTextField lastNameField = new JTextField(userToEdit.getLastName(), 10);
-                JTextField emailField = new JTextField(userToEdit.getEmail(), 10);
-                JPasswordField passwordField = new JPasswordField(userToEdit.getPassword(), 10);
-                JComboBox<String> userTypeComboBox = new JComboBox<>(new String[]{"Customer", "Admin"});
-                userTypeComboBox.setSelectedItem(userToEdit.getRole());
-                JComboBox<String> statusComboBox = new JComboBox<>(new String[]{"Active", "Inactive"});
-                statusComboBox.setSelectedItem(userToEdit.isActive() ? "Active" : "Inactive");
-
-                JPanel panel = new JPanel(new GridLayout(6, 2));
-                panel.add(new JLabel("User Type:"));
-                panel.add(userTypeComboBox);
-                panel.add(new JLabel("First Name:"));
-                panel.add(firstNameField);
-                panel.add(new JLabel("Last Name:"));
-                panel.add(lastNameField);
-                panel.add(new JLabel("Email:"));
-                panel.add(emailField);
-                panel.add(new JLabel("Password:"));
-                panel.add(passwordField);
-                panel.add(new JLabel("Status:"));
-                panel.add(statusComboBox);
-
-                int result = JOptionPane.showConfirmDialog(null, panel, "Edit User", JOptionPane.OK_CANCEL_OPTION);
+            // Constructor to initialize the form
+            public addCustomer() {
+                // Set title, size, and default close operation
+                setTitle("Add Customer");
+                setSize(1200, 130);
+                setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Dispose on close to return to previous window
+                setLocationRelativeTo(null); // Center the window on the screen
+                
+        
+                // Main panel with BorderLayout
+                JPanel mainPanel = new JPanel(new BorderLayout(0, 10));
+                mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        
+                JPanel topPanel = new JPanel(new FlowLayout());
+                topPanel.add(new JLabel("UserType: "));
+                JComboBox<String> userTypeBox = new JComboBox<>(new String[]{"Customer","Admin"});
+                topPanel.add(userTypeBox);
+        
+                topPanel.add(new JLabel("First Name: "));
+                JTextField firstNameText = new JTextField("");
+                firstNameText.setPreferredSize(new Dimension(100, 30));
+                topPanel.add(firstNameText);
+        
+                topPanel.add(new JLabel("Last Name: "));
+                JTextField lastNameText = new JTextField("");
+                lastNameText.setPreferredSize(new Dimension(100, 30));
+                topPanel.add(lastNameText);
+                
+                topPanel.add(new JLabel("Mail ID: "));
+                JTextField mailIdText = new JTextField("");
+                mailIdText.setPreferredSize(new Dimension(100, 30));
+                topPanel.add(mailIdText);
+                
+                topPanel.add(new JLabel("Password: "));
+                JTextField passwordText = new JTextField("");
+                passwordText.setPreferredSize(new Dimension(100, 30));
+                topPanel.add(passwordText);
+        
+                ButtonGroup statusGroup = new ButtonGroup();
+                JRadioButton activeButton = new JRadioButton("active");
+                activeButton.setSelected(true);
+                JRadioButton inactiveButton = new JRadioButton("inactive");
+                statusGroup.add(activeButton);
+                statusGroup.add(inactiveButton);
+        
+                topPanel.add(new JLabel("Status: "));
+                topPanel.add(activeButton);
+                topPanel.add(inactiveButton);
+        
+                mainPanel.add(topPanel, BorderLayout.NORTH);
+        /* 
+                JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+                JButton okButton = new JButton("OK");
+                JButton cancelButton = new JButton("Cancel");
+                bottomPanel.add(okButton);
+                bottomPanel.add(cancelButton);
+                
+        
+                mainPanel.add(bottomPanel, BorderLayout.SOUTH);
+                */
+                add(mainPanel);
+                setVisible(true);
+                int result = JOptionPane.showConfirmDialog(null, mainPanel, "Add User", JOptionPane.OK_CANCEL_OPTION);
                 if (result == JOptionPane.OK_OPTION) {
-                    String firstName = firstNameField.getText();
-                    String lastName = lastNameField.getText();
-                    String email = emailField.getText();
-                    String password = new String(passwordField.getPassword());
+                    String firstName = firstNameText.getText();
+                    String lastName = lastNameText.getText();
+                    String email = mailIdText.getText();
+                    String password = new String(passwordText.getText());
                     String role = (String) userTypeComboBox.getSelectedItem();
-                    boolean isActive = statusComboBox.getSelectedItem().equals("Active");
+                    boolean isActive = activeButton.isSelected(); 
 
-                    User editedUser;
+                    String userName = generateUserName(firstName);
+                    User newUser;
                     if (role.equals("Admin")) {
-                        editedUser = new Admin(firstName, lastName, email, userToEdit.getUserName(), password, isActive);
+                        newUser = new Admin(firstName, lastName, email, userName, password, isActive);
                     } else {
-                        editedUser = new Customer(firstName, lastName, email, userToEdit.getUserName(), password, isActive);
+                        newUser = new Customer(firstName, lastName, email, userName, password, isActive);
                     }
 
                     try {
-                        userManager.updateUser(cafe.DB.getUsers(), userToEdit.getUserName(), editedUser);
+                        userManager.addUser(cafe.DB.getUsers(), newUser);
                         cafe.DB.saveData();
                         loadUsers();
-                    } catch (CustomExceptions.UserNotFoundException e) {
-                        JOptionPane.showMessageDialog(this, "User not found!");
+                    } catch (CustomExceptions.UserAlreadyExistsException e) {
+                        JOptionPane.showMessageDialog(this, "User already exists!");
                     }
                 }
             }
-        } else {
-            JOptionPane.showMessageDialog(this, "No user selected!");
         }
-    }
+
+        
 
     private void deleteUser() {
-        String selectedText = getSelectedText(activeCustomersPane);
-        if (selectedText == null) {
-            selectedText = getSelectedText(inactiveCustomersPane);
-        }
-    
-        if (selectedText != null) {
-            User userToDelete = findUserByUserName(selectedText);
-            if (userToDelete != null) {
-                int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this user?", "Confirm Delete", JOptionPane.YES_NO_OPTION);
-                if (confirm == JOptionPane.YES_OPTION) {
-                    try {
-                        userManager.removeUser(cafe.DB.getUsers(), selectedText);
-                        cafe.DB.saveData();
-                        JOptionPane.showMessageDialog(this, "User deleted successfully!");
-                        loadUsers();
-                    } catch (CustomExceptions.UserNotFoundException ex) {
-                        JOptionPane.showMessageDialog(this, "User not found!");
-                    }
+        String userName = JOptionPane.showInputDialog(this, "Enter user name to delete:");
+        User userToDelete = cafe.DB.getUsers().get(userName);
+        if (userToDelete != null) {
+            int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this user?", "Confirm Delete", JOptionPane.YES_NO_OPTION);
+            if (confirm == JOptionPane.YES_OPTION) {
+                try {
+                    userManager.removeUser(cafe.DB.getUsers(), userName);
+                    cafe.DB.saveData();
+                    JOptionPane.showMessageDialog(this, "User deleted successfully!");
+                    loadUsers();
+                } catch (CustomExceptions.UserNotFoundException ex) {
+                    JOptionPane.showMessageDialog(this, "User not found!");
                 }
-            } else {
-                JOptionPane.showMessageDialog(this, "User not found!");
             }
         } else {
-            JOptionPane.showMessageDialog(this, "No user selected!");
+            JOptionPane.showMessageDialog(this, "User not found!");
         }
     }
 
-    private void moveUser(JTextArea area, boolean toActive) {
-        String selectedText = getSelectedText(area);
-        if (selectedText != null) {
-            User userToMove = findUserByUserName(selectedText);
-            if (userToMove != null) {
-                userToMove.setActive(toActive);
-                cafe.DB.saveData();
-                loadUsers();
-                JOptionPane.showMessageDialog(this, "User moved successfully!");
-            } else {
-                JOptionPane.showMessageDialog(this, "User not found!");
-            }
-        } else {
-            JOptionPane.showMessageDialog(this, "No user selected!");
-        }
-    }
 
     private String generateUserName(String firstName) {
         String baseUserName = firstName.toLowerCase();
@@ -425,29 +439,4 @@ public class CustomerManagementScreen extends JFrame {
         } while (cafe.DB.getUsers().containsKey(userName));
         return userName;
     }
-
-    private String getSelectedText(JTextPane pane) {
-        int selectionStart = pane.getSelectionStart();
-        int selectionEnd = pane.getSelectionEnd();
-        if (selectionStart != selectionEnd) {
-            try {
-                return pane.getText(selectionStart, selectionEnd - selectionStart).trim();
-            } catch (BadLocationException e) {
-                e.printStackTrace();
-            }
-        }
-        return null;
-    }
-    private String getSelectedText(JTextArea area) {
-    int selectionStart = area.getSelectionStart();
-    int selectionEnd = area.getSelectionEnd();
-    if (selectionStart != selectionEnd) {
-        try {
-            return area.getText(selectionStart, selectionEnd - selectionStart).trim();
-        } catch (BadLocationException e) {
-            e.printStackTrace();
-        }
-    }
-    return null;
-}
 }
