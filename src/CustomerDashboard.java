@@ -150,12 +150,13 @@ public class CustomerDashboard extends JFrame {
                 }
             }
         }
+        /* 
         if (menuItems.length() != 0){
             menuItems += ("Subtotal: " + menuCost + "\n" +"Tax: " + menuCost*(0.0725) + "\n"  + 
             "Tip: " + "\n Total: " + menuCost*(1.0725)
             ); //IMPLEMENT TIP
             
-        }
+        }*/
         menuPane.setText(menuItems);
         JLabel menuLabel = new JLabel("Menu:");
         menuLabel.setFont(new Font("Serif", Font.PLAIN, 30));

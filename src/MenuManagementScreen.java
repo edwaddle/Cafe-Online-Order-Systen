@@ -76,15 +76,15 @@ public class MenuManagementScreen extends JFrame {
         JPanel rightPanel = new JPanel(new BorderLayout(10, 10));
         JLabel activeLabel = new JLabel("Backup (Off-season) Menu");
         JLabel inactiveLabel = new JLabel("Current Menu");
-        JButton reactiveButton = new JButton("Inactive");
-        JButton inactiveButton = new JButton("Re-activate");
+        JButton reactiveButton = new JButton("Re-activate");
+        JButton inactiveButton = new JButton("Inactive");
 
         leftPanel.add(activeLabel, BorderLayout.NORTH);
-        leftPanel.add(new JScrollPane(inSeasonPane), BorderLayout.CENTER);
-        leftPanel.add(inactiveButton, BorderLayout.SOUTH);
+        leftPanel.add(new JScrollPane(outOfSeasonPane), BorderLayout.CENTER);
+        leftPanel.add(reactiveButton, BorderLayout.SOUTH);
         rightPanel.add(inactiveLabel, BorderLayout.NORTH);
-        rightPanel.add(new JScrollPane(outOfSeasonPane), BorderLayout.CENTER);
-        rightPanel.add(reactiveButton, BorderLayout.SOUTH);
+        rightPanel.add(new JScrollPane(inSeasonPane), BorderLayout.CENTER);
+        rightPanel.add(inactiveButton, BorderLayout.SOUTH);
 
         middlePanel.add(leftPanel);
         middlePanel.add(rightPanel);
@@ -115,6 +115,8 @@ public class MenuManagementScreen extends JFrame {
         finalBottomPanel.add(searchButton);
         bottomPanel.add(finalBottomPanel);
         add(bottomPanel, BorderLayout.SOUTH);
+
+        loadMenuItems();
 
         logoutButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
