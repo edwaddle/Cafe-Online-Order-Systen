@@ -1,4 +1,4 @@
-Admin;asdf;asdf;asdf@g;asdf7783;Password115%;true;
+Admin;asdf;asdf;asdf@g;1;1;true;
 Customer;asdf;asdf;asdf@g;asdf8820;asdf;true;
 Customer;1;1;1;12357;1;true;
 Diner;2;2;2;2.0;2;true

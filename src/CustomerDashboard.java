@@ -7,8 +7,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Map;
 
 public class CustomerDashboard extends JFrame {
+
+    Map<String, Float> cartItems = new HashMap<>();
 
     private UserManager userManager;
     private User currentUser; // The user who is currently logged in
@@ -25,9 +28,9 @@ public class CustomerDashboard extends JFrame {
     private JPanel tipPanel;
     private ButtonGroup tipGroup;
     private JRadioButton noTipButton;
-    private JRadioButton tenPercentButton;
-    private JRadioButton fifteenPercentButton;
-    private JRadioButton twentyPercentButton;
+    private JRadioButton fifteenTipButton;
+    private JRadioButton eighteenTipButton;
+    private JRadioButton twentyTipButton;
 
     private JComboBox<String> sortByComboBox;
     private JTextField searchField;
@@ -68,6 +71,9 @@ public class CustomerDashboard extends JFrame {
                 if (itemName.getTitle().equals( item)){
                     orderedItems += " " + itemName.getPrice();
                 }
+                else{
+                    orderedItems += "IDK";
+                }
             }
         }
         cartPane.setText(orderedItems);
@@ -78,7 +84,7 @@ public class CustomerDashboard extends JFrame {
 
         billPane = new JTextPane();
         billPane.setPreferredSize(new Dimension(380, 200));
-        billDoc = cartPane.getStyledDocument();
+        billDoc = billPane.getStyledDocument();
         String billItems = "";
         double billCost = 0.0;
         for (String item: currentUser.getOrderedItems()){
@@ -105,9 +111,9 @@ public class CustomerDashboard extends JFrame {
         ButtonGroup tipGroup = new ButtonGroup();
         JRadioButton noTipButton = new JRadioButton("No tip");
         noTipButton.setSelected(true); 
-        JRadioButton fifteenTipButton = new JRadioButton("15% tip");
-        JRadioButton eighteenTipButton = new JRadioButton("18% tip");
-        JRadioButton twentyTipButton = new JRadioButton("20% tip");
+        fifteenTipButton = new JRadioButton("15% tip");
+        eighteenTipButton = new JRadioButton("18% tip");
+        twentyTipButton = new JRadioButton("20% tip");
 
         tipGroup.add(noTipButton);
         tipGroup.add(fifteenTipButton);
@@ -141,13 +147,9 @@ public class CustomerDashboard extends JFrame {
         menuDoc = cartPane.getStyledDocument();
         String menuItems = "";
         double menuCost = 0.0;
-        for (String item: currentUser.getOrderedItems()){
-            menuItems += item;
-            for (MenuItem itemName : cafe.DB.getMenu()){
-                if (itemName.getTitle().equals( item)){
-                    menuItems += " " + itemName.getPrice() + "\n";
-                    menuCost += itemName.getPrice();
-                }
+        for (MenuItem itemName : cafe.DB.getMenu()){
+            if (itemName.isAvailable()){
+                menuItems += itemName.getTitle() + " " + itemName.getPrice() + "\n";
             }
         }
         /* 
@@ -221,6 +223,11 @@ public class CustomerDashboard extends JFrame {
                 loadMenuItems();
             }
         });
+        addToCartButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                addItemToCart();
+            }
+        });
 
         setVisible(true);
     }
@@ -273,13 +280,74 @@ public class CustomerDashboard extends JFrame {
                 "Item Details", JOptionPane.INFORMATION_MESSAGE);
     }
 
-    private void addItemToCart(MenuItem item) {
-        try {
-            cartDoc.insertString(cartDoc.getLength(), item.getTitle() + "\n", null);
-            updateBill();
-        } catch (BadLocationException e) {
-            e.printStackTrace();
+    private void addItemToCart() {
+        String selectedText = getSelectedText(menuPane);
+    
+        if (selectedText == null || selectedText.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "No item selected!");
+            return;
         }
+        
+        MenuItem matchedItem = null;
+        for (MenuItem item : cafe.DB.getMenu()) {
+            String itemDetails = item.getTitle() + " " + item.getPrice();
+            if (itemDetails.equals(selectedText)) {
+                matchedItem = item;
+                
+                break;
+            }
+        }
+        
+        if (matchedItem != null) {
+            String selectedString = matchedItem.getTitle() + " " + matchedItem.getPrice() + "\n";
+            try {
+                
+                cartDoc.remove(0, cartDoc.getLength());
+                cartDoc.insertString(cartDoc.getLength(), selectedString, null);
+                cartItems.put(matchedItem.getTitle(), matchedItem.getPrice());
+                
+                
+            } catch (BadLocationException e) {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Failed to add item to cart.");
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Menu item not found!");
+        }
+        
+        updateBill();
+    }
+
+        
+            /* 
+            MenuItem itemToDelete = findMenuItemByID(itemID);
+            if (itemToDelete != null) {
+                int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this menu item?", "Confirm Delete", JOptionPane.YES_NO_OPTION);
+                if (confirm == JOptionPane.YES_OPTION) {
+                    try {
+                        menuManager.removeMenuItem(itemToDelete);
+                        cafe.DB.saveData();
+                        JOptionPane.showMessageDialog(this, "Menu item deleted successfully!");
+                        loadMenuItems();
+                    } catch (CustomExceptions.ItemNotFoundException ex) {
+                        JOptionPane.showMessageDialog(this, "Menu item not found!");
+                    }
+                }
+                */
+        
+    
+
+    private String getSelectedText(JTextPane pane) {
+        int selectionStart = pane.getSelectionStart();
+        int selectionEnd = pane.getSelectionEnd();
+        if (selectionStart != selectionEnd) {
+            try {
+                return pane.getText(selectionStart, selectionEnd - selectionStart).trim();
+            } catch (BadLocationException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
     }
 
     private void removeItemFromCart(MenuItem item) {
@@ -301,18 +369,23 @@ public class CustomerDashboard extends JFrame {
         try {
             billDoc.remove(0, billDoc.getLength());
             float total = 0;
-            String cartText = cartPane.getText();
+            for (Map.Entry<String, Float> entry : cartItems.entrySet()) {
+                billDoc.insertString(billDoc.getLength(), entry.getKey() + ": " + entry.getValue() + "\n", null);
+                total += entry.getValue();
+            }
+            /* 
             for (MenuItem item : cafe.DB.getMenu()) {
                 if (cartText.contains(item.getTitle())) {
                     total += item.getPrice();
                 }
             }
+            */
             float tip = 0;
-            if (tenPercentButton.isSelected()) {
+            if (fifteenTipButton.isSelected()) {
                 tip = total * 0.10f;
-            } else if (fifteenPercentButton.isSelected()) {
+            } else if (eighteenTipButton.isSelected()) {
                 tip = total * 0.15f;
-            } else if (twentyPercentButton.isSelected()) {
+            } else if (twentyTipButton.isSelected()) {
                 tip = total * 0.20f;
             }
             float grandTotal = total + tip;
