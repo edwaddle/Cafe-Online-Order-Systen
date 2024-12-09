@@ -27,161 +27,91 @@ public class MenuManagementScreen extends JFrame {
         this.userManager = new UserManager();
         this.menuManager = new MenuManager(cafe.DB.getMenu());
 
-        JFrame menuManagerDash = new JFrame();
-        menuManagerDash.setLayout(new BorderLayout(20,20));
-        menuManagerDash.setSize(800,800);
-        menuManagerDash.setResizable(false);
-        menuManagerDash.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        menuManagerDash.setVisible(true);
-        //top
-        JPanel topPanel = new JPanel();
-        topPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 10, 10)); 
-        topPanel.setPreferredSize(new Dimension(380, 30));
-        JLabel userLabel = new JLabel();
-        JButton logoutButton = new JButton("Logout");
-        userLabel.setText(currentUser.getFirstName() + " " + currentUser.getLastName() + " - " + currentUser.getUserName());
-        topPanel.add(userLabel);
-        topPanel.add(logoutButton);
-
-        JPanel upperInnerLeftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10,10));
-        upperInnerLeftPanel.setPreferredSize(new Dimension(380, 30));
-        upperInnerLeftPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 10, 10));
-
-         JCheckBox breakfastCheckbox = new JCheckBox("Breakfast/Lunch");
-         JCheckBox dinnerCheckbox = new JCheckBox("Dinner");
-
-        upperInnerLeftPanel.add(breakfastCheckbox);
-        upperInnerLeftPanel.add(dinnerCheckbox);
-
-        JPanel menuManagerDashInner = new JPanel();
-        menuManagerDashInner.add(upperInnerLeftPanel);
-        menuManagerDashInner.add(topPanel);
-        menuManagerDash.add(menuManagerDashInner, BorderLayout.NORTH);
-        //middle
-        JPanel leftPanel = new JPanel(new BorderLayout(10,10));
-        JPanel rightPanel = new JPanel(new BorderLayout(10,10));
-        JLabel activeLabel = new JLabel("Backup (Off-season) Menu");
-        JLabel inactiveLabel = new JLabel("Current Menu");
-        JTextArea activeArea = new JTextArea();
-        activeArea.setPreferredSize(new Dimension(380,400));
-        String activeText = "";
-        String inactiveText = "";
-        for (MenuItem item: cafe.DB.getMenu()){
-            if (item.isAvailable()){
-                activeText += item.getTitle() + ", " + item.getPrice() + "\n";
-            }
-            else{
-                activeText += item.getTitle() + ", " + item.getPrice() + "\n";
-            }
-            
-        }
-        activeArea.setText(activeText);
-        activeArea.setEditable(false);
-        JTextArea inactiveArea = new JTextArea();
-        inactiveArea.setPreferredSize(new Dimension(380,400));
-        inactiveArea.setText(inactiveText);
-        inactiveArea.setEditable(false);
-
-        JButton reactiveButton = new JButton("Re-activate");
-        JButton inactiveButton = new JButton("Inactive");
-
-        leftPanel.add(inactiveLabel, BorderLayout.NORTH);
-        leftPanel.add(inactiveArea, BorderLayout.CENTER);
-        leftPanel.add(reactiveButton, BorderLayout.SOUTH);
-        rightPanel.add(activeLabel, BorderLayout.NORTH);
-        rightPanel.add(activeArea, BorderLayout.CENTER);
-        rightPanel.add(inactiveButton  , BorderLayout.SOUTH);
-
-        menuManagerDash.add(leftPanel, BorderLayout.WEST);
-        menuManagerDash.add(rightPanel, BorderLayout.EAST);
-
-        //bottom
-        JPanel bottomPanel = new JPanel(new GridLayout(2,1,20,20));
-        JPanel buttonBottomPanel  = new JPanel(new GridLayout(1,3,30,30));
-        JButton addButton= new JButton("Add");
-        JButton editButton = new JButton("Edit");
-        JButton deleteButton = new JButton("Delete");
-        buttonBottomPanel.add(addButton);
-        buttonBottomPanel.add(editButton);
-        buttonBottomPanel.add(addButton);
-        buttonBottomPanel.add(deleteButton);
-        bottomPanel.add(buttonBottomPanel);
-
-        JPanel finalBottomPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 10));
-        JComboBox<String> sortOrderBox = new JComboBox<>(new String[]{"Ascending","Descending"});
-        finalBottomPanel.add(new JLabel("Sort Order:"));
-        finalBottomPanel.add(sortOrderBox);
-        JComboBox<String> searchOrSortBox = new JComboBox<>(new String[]{"Title","Description","ItemID","Price"});
-        finalBottomPanel.add(new JLabel("Search/Sort By:"));
-        finalBottomPanel.add(searchOrSortBox);
-        JButton sortButton = new JButton("Sort");
-        finalBottomPanel.add(sortButton);
-        JTextField searchTextField = new JTextField("");
-        searchTextField.setPreferredSize(new Dimension(200,30));
-        finalBottomPanel.add(searchTextField);
-        JButton searchButton = new JButton("Search");
-        finalBottomPanel.add(searchButton);
-        bottomPanel.add(finalBottomPanel, BorderLayout.SOUTH);
-
-        menuManagerDash.add(bottomPanel, BorderLayout.SOUTH);
-
-
-
-        /* 
-
         setTitle("Menu Management");
-        setSize(800, 600);
+        setSize(800, 800);
         setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         // Initialize components
         inSeasonPane = new JTextPane();
         outOfSeasonPane = new JTextPane();
         inSeasonDoc = inSeasonPane.getStyledDocument();
         outOfSeasonDoc = outOfSeasonPane.getStyledDocument();
+        inSeasonPane.setEditable(false);
+        outOfSeasonPane.setEditable(false);
 
         menuTypeComboBox = new JComboBox<>(new String[]{"Diner", "Pancake"});
-        sortByComboBox = new JComboBox<>(new String[]{"title", "description", "itemID", "price"});
+        sortByComboBox = new JComboBox<>(new String[]{"Title", "Description", "ItemID", "Price"});
         searchField = new JTextField(20);
 
-        // Add components to the frame
-        JPanel mainPanel = new JPanel(new BorderLayout());
-        JPanel filterPanel = new JPanel();
-        filterPanel.add(new JLabel("Menu Type:"));
-        filterPanel.add(menuTypeComboBox);
-        filterPanel.add(new JLabel("Sort By:"));
-        filterPanel.add(sortByComboBox);
-        filterPanel.add(new JLabel("Search:"));
-        filterPanel.add(searchField);
-
-        mainPanel.add(filterPanel, BorderLayout.NORTH);
-
-        // Add columns for in-season and out-of-season items
-        JPanel columnsPanel = new JPanel(new GridLayout(1, 2, 10, 10));
-        columnsPanel.add(createColumnPanel(inSeasonPane, "Move to Out of Season"));
-        columnsPanel.add(createColumnPanel(outOfSeasonPane, "Move to In Season"));
-        mainPanel.add(columnsPanel, BorderLayout.CENTER);
-
-        // Add a logout button
+        // Top Panel
+        JPanel topPanel = new JPanel();
+        topPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 10, 10));
+        JLabel userLabel = new JLabel();
         JButton logoutButton = new JButton("Logout");
-        
-        mainPanel.add(logoutButton, BorderLayout.SOUTH);
+        userLabel.setText(currentUser.getFirstName() + " " + currentUser.getLastName() + " - " + currentUser.getUserName());
+        topPanel.add(userLabel);
+        topPanel.add(logoutButton);
 
-        // Add buttons for adding, editing, and deleting items
-        JPanel buttonPanel = new JPanel(new FlowLayout());
-        JButton addButton = new JButton("Add Item");
-        JButton editButton = new JButton("Edit Item");
-        JButton deleteButton = new JButton("Delete Item");
-        JButton moveButton = new JButton("Move Item");
+        JPanel upperInnerLeftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
+        JCheckBox breakfastCheckbox = new JCheckBox("Breakfast/Lunch");
+        JCheckBox dinnerCheckbox = new JCheckBox("Dinner");
+        upperInnerLeftPanel.add(breakfastCheckbox);
+        upperInnerLeftPanel.add(dinnerCheckbox);
 
-         buttonPanel.add(addButton);
-        buttonPanel.add(editButton);
-        buttonPanel.add(deleteButton);
-        buttonPanel.add(moveButton);
-        mainPanel.add(buttonPanel, BorderLayout.NORTH);
+        JPanel menuManagerDashInner = new JPanel();
+        menuManagerDashInner.setLayout(new BoxLayout(menuManagerDashInner, BoxLayout.X_AXIS));
+        menuManagerDashInner.add(upperInnerLeftPanel);
+        menuManagerDashInner.add(topPanel);
+        add(menuManagerDashInner, BorderLayout.NORTH);
 
-        add(mainPanel);
-         */
+        // Middle Panel
+        JPanel middlePanel = new JPanel(new GridLayout(1, 2, 20, 20));
+        JPanel leftPanel = new JPanel(new BorderLayout(10, 10));
+        JPanel rightPanel = new JPanel(new BorderLayout(10, 10));
+        JLabel activeLabel = new JLabel("Backup (Off-season) Menu");
+        JLabel inactiveLabel = new JLabel("Current Menu");
+        JButton reactiveButton = new JButton("Inactive");
+        JButton inactiveButton = new JButton("Re-activate");
+
+        leftPanel.add(inactiveLabel, BorderLayout.NORTH);
+        leftPanel.add(new JScrollPane(outOfSeasonPane), BorderLayout.CENTER);
+        leftPanel.add(reactiveButton, BorderLayout.SOUTH);
+        rightPanel.add(activeLabel, BorderLayout.NORTH);
+        rightPanel.add(new JScrollPane(inSeasonPane), BorderLayout.CENTER);
+        rightPanel.add(inactiveButton, BorderLayout.SOUTH);
+
+        middlePanel.add(leftPanel);
+        middlePanel.add(rightPanel);
+        add(middlePanel, BorderLayout.CENTER);
+
+        // Bottom Panel
+        JPanel bottomPanel = new JPanel(new GridLayout(2, 1, 20, 20));
+        JPanel buttonBottomPanel = new JPanel(new GridLayout(1, 3, 30, 30));
+        JButton addButton = new JButton("Add");
+        JButton editButton = new JButton("Edit");
+        JButton deleteButton = new JButton("Delete");
+        buttonBottomPanel.add(addButton);
+        buttonBottomPanel.add(editButton);
+        buttonBottomPanel.add(deleteButton);
+        bottomPanel.add(buttonBottomPanel);
+
+        JPanel finalBottomPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
+        JComboBox<String> sortOrderBox = new JComboBox<>(new String[]{"Ascending", "Descending"});
+        finalBottomPanel.add(new JLabel("Sort Order:"));
+        finalBottomPanel.add(sortOrderBox);
+        JComboBox<String> searchOrSortBox = new JComboBox<>(new String[]{"Title", "Description", "ItemID", "Price"});
+        finalBottomPanel.add(new JLabel("Search/Sort By:"));
+        finalBottomPanel.add(searchOrSortBox);
+        JButton sortButton = new JButton("Sort");
+        finalBottomPanel.add(sortButton);
+        JTextField searchTextField = new JTextField("");
+        searchTextField.setPreferredSize(new Dimension(200, 30));
+        finalBottomPanel.add(searchTextField);
+        JButton searchButton = new JButton("Search");
+        finalBottomPanel.add(searchButton);
+        bottomPanel.add(finalBottomPanel);
+        add(bottomPanel, BorderLayout.SOUTH);
 
         logoutButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -207,94 +137,32 @@ public class MenuManagementScreen extends JFrame {
                 deleteMenuItem();
             }
         });
-        /* 
-        moveButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                moveMenuItem();
-            }
-        });
-        */
 
-        // Load menu items
-        loadMenuItems();
-
-        // Action listeners
-        menuTypeComboBox.addActionListener(new ActionListener() {
+        reactiveButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                loadMenuItems();
+                moveMenuItem(outOfSeasonPane, true);
             }
         });
 
-        sortByComboBox.addActionListener(new ActionListener() {
+        inactiveButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                moveMenuItem(inSeasonPane, false);
+            }
+        });
+
+        sortButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 loadMenuItems();
             }
         });
 
-        searchField.addActionListener(new ActionListener() {
+        searchButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 loadMenuItems();
             }
         });
 
         setVisible(true);
-    }
-
-    private JPanel createColumnPanel(JTextPane pane, String buttonLabel) {
-        JPanel columnPanel = new JPanel(new BorderLayout());
-        pane.setEditable(false);
-        pane.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 1) {
-                    int pos = pane.viewToModel(e.getPoint());
-                    if (pos >= 0) {
-                        int start = pane.getStyledDocument().getParagraphElement(pos).getStartOffset();
-                        int end = pane.getStyledDocument().getParagraphElement(pos).getEndOffset();
-                        pane.setSelectionStart(start);
-                        pane.setSelectionEnd(end);
-                    }
-                } else if (e.getClickCount() == 2) {
-                    int pos = pane.viewToModel(e.getPoint());
-                    if (pos >= 0) {
-                        try {
-                            int start = pane.getStyledDocument().getParagraphElement(pos).getStartOffset();
-                            int end = pane.getStyledDocument().getParagraphElement(pos).getEndOffset();
-                            String selectedText = pane.getText(start, end - start).trim();
-                            if (nameToItemIDMap.containsKey(selectedText)) {
-                                String itemID = nameToItemIDMap.get(selectedText);
-                                MenuItem selectedItem = findMenuItemByID(itemID);
-                                if (selectedItem != null) {
-                                    showItemDetails(selectedItem);
-                                }
-                            }
-                        } catch (BadLocationException ex) {
-                            ex.printStackTrace();
-                        }
-                    }
-                }
-            }
-        });
-
-        JButton moveButton = new JButton(buttonLabel);
-        moveButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                String selectedText = getSelectedText(pane);
-                if (selectedText != null && nameToItemIDMap.containsKey(selectedText)) {
-                    String itemID = nameToItemIDMap.get(selectedText);
-                    MenuItem item = findMenuItemByID(itemID);
-                    if (item != null) {
-                        item.setCurrent(!item.isCurrent());
-                        cafe.DB.saveData();
-                        loadMenuItems();
-                    }
-                }
-            }
-        });
-
-        columnPanel.add(new JScrollPane(pane), BorderLayout.CENTER);
-        columnPanel.add(moveButton, BorderLayout.SOUTH);
-        return columnPanel;
     }
 
     private void loadMenuItems() {
@@ -499,17 +367,21 @@ public class MenuManagementScreen extends JFrame {
         }
     }
 
-    private void moveMenuItem() {
-        String itemID = JOptionPane.showInputDialog(this, "Enter item ID to move:");
-        MenuItem itemToMove = findMenuItemByID(itemID);
-        if (itemToMove != null) {
-            boolean newCurrentStatus = !itemToMove.isCurrent();
-            itemToMove.setCurrent(newCurrentStatus);
-            cafe.DB.saveData();
-            loadMenuItems();
-            JOptionPane.showMessageDialog(this, "Item moved successfully!");
+    private void moveMenuItem(JTextPane pane, boolean toActive) {
+        String selectedText = getSelectedText(pane);
+        if (selectedText != null && nameToItemIDMap.containsKey(selectedText)) {
+            String itemID = nameToItemIDMap.get(selectedText);
+            MenuItem itemToMove = findMenuItemByID(itemID);
+            if (itemToMove != null) {
+                itemToMove.setCurrent(toActive);
+                cafe.DB.saveData();
+                loadMenuItems();
+                JOptionPane.showMessageDialog(this, "Item moved successfully!");
+            } else {
+                JOptionPane.showMessageDialog(this, "Menu item not found!");
+            }
         } else {
-            JOptionPane.showMessageDialog(this, "Menu item not found!");
+            JOptionPane.showMessageDialog(this, "No item selected!");
         }
     }
 
