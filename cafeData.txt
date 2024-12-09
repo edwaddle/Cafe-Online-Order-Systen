@@ -1,2 +1,2 @@
+Customer;asdf;asdf;asdf@g;asdf8791;asdf;true;
 Customer;nathan;choi;nathan.choi;nathan7902;1234Rex!;true;
-Diner;Dog;200;Dog Ribs;2.0;10;true
