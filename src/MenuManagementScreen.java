@@ -137,14 +137,10 @@ public class MenuManagementScreen extends JFrame {
                 if (e.getClickCount() == 1) {
                     int pos = pane.viewToModel(e.getPoint());
                     if (pos >= 0) {
-                        try {
-                            int start = pane.getStyledDocument().getParagraphElement(pos).getStartOffset();
-                            int end = pane.getStyledDocument().getParagraphElement(pos).getEndOffset();
-                            pane.setSelectionStart(start);
-                            pane.setSelectionEnd(end);
-                        } catch (BadLocationException ex) {
-                            ex.printStackTrace();
-                        }
+                        int start = pane.getStyledDocument().getParagraphElement(pos).getStartOffset();
+                        int end = pane.getStyledDocument().getParagraphElement(pos).getEndOffset();
+                        pane.setSelectionStart(start);
+                        pane.setSelectionEnd(end);
                     }
                 } else if (e.getClickCount() == 2) {
                     int pos = pane.viewToModel(e.getPoint());
