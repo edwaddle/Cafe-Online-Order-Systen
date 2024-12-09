@@ -85,9 +85,9 @@ public class CustomerManagementScreen extends JFrame {
         JComboBox<String> sortOrderBox = new JComboBox<>(new String[]{"Ascending", "Descending"});
         finalBottomPanel.add(new JLabel("Sort Order:"));
         finalBottomPanel.add(sortOrderBox);
-        JComboBox<String> searchOrSortBox = new JComboBox<>(new String[]{"Customer", "Admin"});
+        sortByComboBox = new JComboBox<>(new String[]{"firstName", "lastName", "email", "userName"});
         finalBottomPanel.add(new JLabel("Search/Sort By:"));
-        finalBottomPanel.add(searchOrSortBox);
+        finalBottomPanel.add(sortByComboBox);
         JButton sortButton = new JButton("Sort");
         finalBottomPanel.add(sortButton);
         JTextField sortTextField = new JTextField("");
@@ -143,7 +143,7 @@ public class CustomerManagementScreen extends JFrame {
             }
         });
 
-        searchOrSortBox.addActionListener(new ActionListener() {
+        sortByComboBox.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 loadUsers();
             }
