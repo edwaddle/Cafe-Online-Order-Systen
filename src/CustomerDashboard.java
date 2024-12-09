@@ -263,7 +263,6 @@ public class CustomerDashboard extends JFrame {
             }
         });
 
-<<<<<<< HEAD
         sortByComboBox.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 loadMenuItems();
@@ -348,9 +347,6 @@ public class CustomerDashboard extends JFrame {
         });
 
         setVisible(true);
-=======
-        
->>>>>>> 1d121436ff3e78e0d7b5bb6016f41f679dd5206f
     }
 
     private void loadMenuItems() {
