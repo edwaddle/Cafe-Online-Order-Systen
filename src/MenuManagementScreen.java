@@ -74,12 +74,12 @@ public class MenuManagementScreen extends JFrame {
         JButton reactiveButton = new JButton("Inactive");
         JButton inactiveButton = new JButton("Re-activate");
 
-        leftPanel.add(inactiveLabel, BorderLayout.NORTH);
-        leftPanel.add(new JScrollPane(outOfSeasonPane), BorderLayout.CENTER);
-        leftPanel.add(reactiveButton, BorderLayout.SOUTH);
-        rightPanel.add(activeLabel, BorderLayout.NORTH);
-        rightPanel.add(new JScrollPane(inSeasonPane), BorderLayout.CENTER);
-        rightPanel.add(inactiveButton, BorderLayout.SOUTH);
+        leftPanel.add(activeLabel, BorderLayout.NORTH);
+        leftPanel.add(new JScrollPane(inSeasonPane), BorderLayout.CENTER);
+        leftPanel.add(inactiveButton, BorderLayout.SOUTH);
+        rightPanel.add(inactiveLabel, BorderLayout.NORTH);
+        rightPanel.add(new JScrollPane(outOfSeasonPane), BorderLayout.CENTER);
+        rightPanel.add(reactiveButton, BorderLayout.SOUTH);
 
         middlePanel.add(leftPanel);
         middlePanel.add(rightPanel);
