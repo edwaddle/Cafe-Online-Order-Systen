@@ -216,26 +216,51 @@ public class CustomerManagementScreen extends JFrame {
     }
 
     private void addUser() {
-        String firstName = JOptionPane.showInputDialog(this, "Enter first name:");
-        String lastName = JOptionPane.showInputDialog(this, "Enter last name:");
-        String email = JOptionPane.showInputDialog(this, "Enter email:");
-        String password = JOptionPane.showInputDialog(this, "Enter password:");
-        String role = JOptionPane.showInputDialog(this, "Enter role (Admin/Customer):");
+        JTextField firstNameField = new JTextField(10);
+        JTextField lastNameField = new JTextField(10);
+        JTextField emailField = new JTextField(10);
+        JPasswordField passwordField = new JPasswordField(10);
+        JComboBox<String> userTypeComboBox = new JComboBox<>(new String[]{"Customer", "Admin"});
+        JComboBox<String> statusComboBox = new JComboBox<>(new String[]{"Active", "Inactive"});
 
-        String userName = generateUserName(firstName);
-        User newUser;
-        if (role.equals("Admin")) {
-            newUser = new Admin(firstName, lastName, email, userName, password, true);
-        } else {
-            newUser = new Customer(firstName, lastName, email, userName, password, true);
-        }
+        JPanel panel = new JPanel(new GridLayout(6, 2));
+        panel.add(new JLabel("User Type:"));
+        panel.add(userTypeComboBox);
+        panel.add(new JLabel("First Name:"));
+        panel.add(firstNameField);
+        panel.add(new JLabel("Last Name:"));
+        panel.add(lastNameField);
+        panel.add(new JLabel("Email:"));
+        panel.add(emailField);
+        panel.add(new JLabel("Password:"));
+        panel.add(passwordField);
+        panel.add(new JLabel("Status:"));
+        panel.add(statusComboBox);
 
-        try {
-            userManager.addUser(cafe.DB.getUsers(), newUser);
-            cafe.DB.saveData();
-            loadUsers();
-        } catch (CustomExceptions.UserAlreadyExistsException e) {
-            JOptionPane.showMessageDialog(this, "User already exists!");
+        int result = JOptionPane.showConfirmDialog(null, panel, "Add User", JOptionPane.OK_CANCEL_OPTION);
+        if (result == JOptionPane.OK_OPTION) {
+            String firstName = firstNameField.getText();
+            String lastName = lastNameField.getText();
+            String email = emailField.getText();
+            String password = new String(passwordField.getPassword());
+            String role = (String) userTypeComboBox.getSelectedItem();
+            boolean isActive = statusComboBox.getSelectedItem().equals("Active");
+
+            String userName = generateUserName(firstName);
+            User newUser;
+            if (role.equals("Admin")) {
+                newUser = new Admin(firstName, lastName, email, userName, password, isActive);
+            } else {
+                newUser = new Customer(firstName, lastName, email, userName, password, isActive);
+            }
+
+            try {
+                userManager.addUser(cafe.DB.getUsers(), newUser);
+                cafe.DB.saveData();
+                loadUsers();
+            } catch (CustomExceptions.UserAlreadyExistsException e) {
+                JOptionPane.showMessageDialog(this, "User already exists!");
+            }
         }
     }
 

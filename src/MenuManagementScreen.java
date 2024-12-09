@@ -72,6 +72,35 @@ public class MenuManagementScreen extends JFrame {
         });
         mainPanel.add(logoutButton, BorderLayout.SOUTH);
 
+        // Add buttons for adding and deleting items
+        JPanel buttonPanel = new JPanel(new FlowLayout());
+        JButton addButton = new JButton("Add Item");
+        JButton deleteButton = new JButton("Delete Item");
+        JButton moveButton = new JButton("Move Item");
+
+        addButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                addMenuItem();
+            }
+        });
+
+        deleteButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                deleteMenuItem();
+            }
+        });
+
+        moveButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                moveMenuItem();
+            }
+        });
+
+        buttonPanel.add(addButton);
+        buttonPanel.add(deleteButton);
+        buttonPanel.add(moveButton);
+        mainPanel.add(buttonPanel, BorderLayout.NORTH);
+
         add(mainPanel);
 
         // Load menu items
@@ -108,11 +137,14 @@ public class MenuManagementScreen extends JFrame {
                 if (e.getClickCount() == 1) {
                     int pos = pane.viewToModel(e.getPoint());
                     if (pos >= 0) {
-                        int start = pane.getStyledDocument().getParagraphElement(pos).getStartOffset();
-                        int end = pane.getStyledDocument().getParagraphElement(pos).getEndOffset();
-                        pane.setSelectionStart(start);
-                        pane.setSelectionEnd(end);
-                        
+                        try {
+                            int start = pane.getStyledDocument().getParagraphElement(pos).getStartOffset();
+                            int end = pane.getStyledDocument().getParagraphElement(pos).getEndOffset();
+                            pane.setSelectionStart(start);
+                            pane.setSelectionEnd(end);
+                        } catch (BadLocationException ex) {
+                            ex.printStackTrace();
+                        }
                     }
                 } else if (e.getClickCount() == 2) {
                     int pos = pane.viewToModel(e.getPoint());
@@ -209,6 +241,92 @@ public class MenuManagementScreen extends JFrame {
                         "Available: " + item.isAvailable() + "\n" +
                         "Current: " + item.isCurrent(),
                 "Item Details", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private void addMenuItem() {
+        JTextField titleField = new JTextField(10);
+        JTextField itemIDField = new JTextField(10);
+        JTextField descriptionField = new JTextField(10);
+        JTextField priceField = new JTextField(10);
+        JTextField countField = new JTextField(10);
+        JComboBox<String> menuTypeComboBox = new JComboBox<>(new String[]{"Diner", "Pancake"});
+        JComboBox<String> statusComboBox = new JComboBox<>(new String[]{"In Season", "Out of Season"});
+
+        JPanel panel = new JPanel(new GridLayout(7, 2));
+        panel.add(new JLabel("Menu Type:"));
+        panel.add(menuTypeComboBox);
+        panel.add(new JLabel("Title:"));
+        panel.add(titleField);
+        panel.add(new JLabel("Item ID:"));
+        panel.add(itemIDField);
+        panel.add(new JLabel("Description:"));
+        panel.add(descriptionField);
+        panel.add(new JLabel("Price:"));
+        panel.add(priceField);
+        panel.add(new JLabel("Count:"));
+        panel.add(countField);
+        panel.add(new JLabel("Status:"));
+        panel.add(statusComboBox);
+
+        int result = JOptionPane.showConfirmDialog(null, panel, "Add Menu Item", JOptionPane.OK_CANCEL_OPTION);
+        if (result == JOptionPane.OK_OPTION) {
+            String title = titleField.getText();
+            String itemID = itemIDField.getText();
+            String description = descriptionField.getText();
+            float price = Float.parseFloat(priceField.getText());
+            int count = Integer.parseInt(countField.getText());
+            String menuType = (String) menuTypeComboBox.getSelectedItem();
+            boolean isCurrent = statusComboBox.getSelectedItem().equals("In Season");
+
+            MenuItem newItem;
+            if (menuType.equals("Diner")) {
+                newItem = new DinerMenuItem(title, itemID, description, price, count, isCurrent);
+            } else {
+                newItem = new PancakeMenuItem(title, itemID, description, price, count, isCurrent);
+            }
+
+            try {
+                menuManager.addMenuItem(newItem);
+                cafe.DB.saveData();
+                loadMenuItems();
+            } catch (CustomExceptions.ItemAlreadyExistsException e) {
+                JOptionPane.showMessageDialog(this, "Item already exists!");
+            }
+        }
+    }
+
+    private void deleteMenuItem() {
+        String itemID = JOptionPane.showInputDialog(this, "Enter item ID to delete:");
+        MenuItem itemToDelete = findMenuItemByID(itemID);
+        if (itemToDelete != null) {
+            int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this menu item?", "Confirm Delete", JOptionPane.YES_NO_OPTION);
+            if (confirm == JOptionPane.YES_OPTION) {
+                try {
+                    menuManager.removeMenuItem(itemToDelete);
+                    cafe.DB.saveData();
+                    JOptionPane.showMessageDialog(this, "Menu item deleted successfully!");
+                    loadMenuItems();
+                } catch (CustomExceptions.ItemNotFoundException ex) {
+                    JOptionPane.showMessageDialog(this, "Menu item not found!");
+                }
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Menu item not found!");
+        }
+    }
+
+    private void moveMenuItem() {
+        String itemID = JOptionPane.showInputDialog(this, "Enter item ID to move:");
+        MenuItem itemToMove = findMenuItemByID(itemID);
+        if (itemToMove != null) {
+            boolean newCurrentStatus = !itemToMove.isCurrent();
+            itemToMove.setCurrent(newCurrentStatus);
+            cafe.DB.saveData();
+            loadMenuItems();
+            JOptionPane.showMessageDialog(this, "Item moved successfully!");
+        } else {
+            JOptionPane.showMessageDialog(this, "Menu item not found!");
+        }
     }
 
     private String getSelectedText(JTextPane pane) {

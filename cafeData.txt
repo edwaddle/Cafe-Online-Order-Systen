@@ -1,6 +1,1 @@
-<<<<<<< HEAD
-Admin;nathan;choi;nathan@email.com;nathan2685;Nathan12#;true;
-Diner;dog;200;Dogmeat;2.0;5;false
-=======
-Customer;asdf;asdf;asdf@g;asdf7086;Edwon115%;true;
->>>>>>> 1d121436ff3e78e0d7b5bb6016f41f679dd5206f
+Customer;nathan;choi;nathan.choi@gmail.com;nathan4189;Password12#;true;
