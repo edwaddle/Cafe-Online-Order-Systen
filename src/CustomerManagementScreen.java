@@ -372,22 +372,30 @@ public class CustomerManagementScreen extends JFrame {
     }
 
     private void deleteUser() {
-        String userName = JOptionPane.showInputDialog(this, "Enter user name to delete:");
-        User userToDelete = cafe.DB.getUsers().get(userName);
-        if (userToDelete != null) {
-            int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this user?", "Confirm Delete", JOptionPane.YES_NO_OPTION);
-            if (confirm == JOptionPane.YES_OPTION) {
-                try {
-                    userManager.removeUser(cafe.DB.getUsers(), userName);
-                    cafe.DB.saveData();
-                    JOptionPane.showMessageDialog(this, "User deleted successfully!");
-                    loadUsers();
-                } catch (CustomExceptions.UserNotFoundException ex) {
-                    JOptionPane.showMessageDialog(this, "User not found!");
+        String selectedText = getSelectedText(activeCustomersPane);
+        if (selectedText == null) {
+            selectedText = getSelectedText(inactiveCustomersPane);
+        }
+    
+        if (selectedText != null) {
+            User userToDelete = findUserByUserName(selectedText);
+            if (userToDelete != null) {
+                int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this user?", "Confirm Delete", JOptionPane.YES_NO_OPTION);
+                if (confirm == JOptionPane.YES_OPTION) {
+                    try {
+                        userManager.removeUser(cafe.DB.getUsers(), selectedText);
+                        cafe.DB.saveData();
+                        JOptionPane.showMessageDialog(this, "User deleted successfully!");
+                        loadUsers();
+                    } catch (CustomExceptions.UserNotFoundException ex) {
+                        JOptionPane.showMessageDialog(this, "User not found!");
+                    }
                 }
+            } else {
+                JOptionPane.showMessageDialog(this, "User not found!");
             }
         } else {
-            JOptionPane.showMessageDialog(this, "User not found!");
+            JOptionPane.showMessageDialog(this, "No user selected!");
         }
     }
 

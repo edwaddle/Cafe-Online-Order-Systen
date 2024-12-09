@@ -4,8 +4,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.List;
 import java.util.ArrayList;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -367,22 +365,31 @@ public class MenuManagementScreen extends JFrame {
     }
 
     private void deleteMenuItem() {
-        String itemID = JOptionPane.showInputDialog(this, "Enter item ID to delete:");
-        MenuItem itemToDelete = findMenuItemByID(itemID);
-        if (itemToDelete != null) {
-            int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this menu item?", "Confirm Delete", JOptionPane.YES_NO_OPTION);
-            if (confirm == JOptionPane.YES_OPTION) {
-                try {
-                    menuManager.removeMenuItem(itemToDelete);
-                    cafe.DB.saveData();
-                    JOptionPane.showMessageDialog(this, "Menu item deleted successfully!");
-                    loadMenuItems();
-                } catch (CustomExceptions.ItemNotFoundException ex) {
-                    JOptionPane.showMessageDialog(this, "Menu item not found!");
+        String selectedText = getSelectedText(inSeasonPane);
+        if (selectedText == null) {
+            selectedText = getSelectedText(outOfSeasonPane);
+        }
+
+        if (selectedText != null && nameToItemIDMap.containsKey(selectedText)) {
+            String itemID = nameToItemIDMap.get(selectedText);
+            MenuItem itemToDelete = findMenuItemByID(itemID);
+            if (itemToDelete != null) {
+                int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this menu item?", "Confirm Delete", JOptionPane.YES_NO_OPTION);
+                if (confirm == JOptionPane.YES_OPTION) {
+                    try {
+                        menuManager.removeMenuItem(itemToDelete);
+                        cafe.DB.saveData();
+                        JOptionPane.showMessageDialog(this, "Menu item deleted successfully!");
+                        loadMenuItems();
+                    } catch (CustomExceptions.ItemNotFoundException ex) {
+                        JOptionPane.showMessageDialog(this, "Menu item not found!");
+                    }
                 }
+            } else {
+                JOptionPane.showMessageDialog(this, "Menu item not found!");
             }
         } else {
-            JOptionPane.showMessageDialog(this, "Menu item not found!");
+            JOptionPane.showMessageDialog(this, "No item selected!");
         }
     }
 
