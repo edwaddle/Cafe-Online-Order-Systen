@@ -202,7 +202,13 @@ public class CustomerDashboard extends JFrame {
         // Load menu items
         loadMenuItems();
 
-        // Action listeners for checkboxes
+        logoutButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                dispose();
+                new AdminDashboard(null, currentUser);
+            }
+        });
+        
         breakfastCheckbox.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 loadMenuItems();
