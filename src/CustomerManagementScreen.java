@@ -5,8 +5,6 @@ import java.awt.event.*;
 import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 
@@ -29,9 +27,9 @@ public class CustomerManagementScreen extends JFrame {
         this.userManager = new UserManager();
 
         setTitle("Customer Management");
-        setSize(800, 600);
+        setSize(800, 800);
         setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         // Initialize components
         inactiveCustomersPane = new JTextPane();
@@ -43,36 +41,75 @@ public class CustomerManagementScreen extends JFrame {
         sortByComboBox = new JComboBox<>(new String[]{"firstName", "lastName", "email", "userName"});
         searchField = new JTextField(20);
 
-        // Add components to the frame
-        JPanel mainPanel = new JPanel(new BorderLayout());
-        JPanel filterPanel = new JPanel();
-        filterPanel.add(new JLabel("User Type:"));
-        filterPanel.add(userTypeComboBox);
-        filterPanel.add(new JLabel("Sort By:"));
-        filterPanel.add(sortByComboBox);
-        filterPanel.add(new JLabel("Search:"));
-        filterPanel.add(searchField);
-
-        mainPanel.add(filterPanel, BorderLayout.NORTH);
-        mainPanel.add(new JScrollPane(activeCustomersPane), BorderLayout.CENTER);
-        mainPanel.add(new JScrollPane(inactiveCustomersPane), BorderLayout.SOUTH);
-
-        // Add a logout button
+        // Top Panel
+        JPanel topPanel = new JPanel();
+        topPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 10, 10));
+        JLabel userLabel = new JLabel();
         JButton logoutButton = new JButton("Logout");
+        userLabel.setText(currentUser.getFirstName() + " " + currentUser.getLastName() + " - " + currentUser.getUserName());
+        topPanel.add(userLabel);
+        topPanel.add(logoutButton);
+        add(topPanel, BorderLayout.NORTH);
+
+        // Middle Panel
+        JPanel middlePanel = new JPanel(new GridLayout(1, 2, 20, 20));
+        JPanel leftPanel = new JPanel(new BorderLayout(10, 10));
+        JPanel rightPanel = new JPanel(new BorderLayout(10, 10));
+        JLabel activeLabel = new JLabel("Cafe Active Customers:");
+        JLabel inactiveLabel = new JLabel("Cafe Inactive Customers:");
+        JTextArea activeArea = new JTextArea();
+        activeArea.setPreferredSize(new Dimension(380, 400));
+        JTextArea inactiveArea = new JTextArea();
+        inactiveArea.setPreferredSize(new Dimension(380, 400));
+        JButton reactiveButton = new JButton("Re-activate");
+        JButton inactiveButton = new JButton("Inactive");
+
+        leftPanel.add(inactiveLabel, BorderLayout.NORTH);
+        leftPanel.add(new JScrollPane(inactiveArea), BorderLayout.CENTER);
+        leftPanel.add(reactiveButton, BorderLayout.SOUTH);
+        rightPanel.add(activeLabel, BorderLayout.NORTH);
+        rightPanel.add(new JScrollPane(activeArea), BorderLayout.CENTER);
+        rightPanel.add(inactiveButton, BorderLayout.SOUTH);
+        middlePanel.add(leftPanel);
+        middlePanel.add(rightPanel);
+        add(middlePanel, BorderLayout.CENTER);
+
+        // Bottom Panel
+        JPanel bottomPanel = new JPanel(new GridLayout(2, 1, 20, 20));
+        JPanel buttonBottomPanel = new JPanel(new GridLayout(1, 3, 30, 30));
+        JButton addButton = new JButton("Add");
+        JButton editUserButton = new JButton("Edit");
+        JButton deleteButton = new JButton("Delete");
+        buttonBottomPanel.add(addButton);
+        buttonBottomPanel.add(editUserButton);
+        buttonBottomPanel.add(deleteButton);
+        bottomPanel.add(buttonBottomPanel);
+
+        JPanel finalBottomPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
+        JComboBox<String> sortOrderBox = new JComboBox<>(new String[]{"Ascending", "Descending"});
+        finalBottomPanel.add(new JLabel("Sort Order:"));
+        finalBottomPanel.add(sortOrderBox);
+        JComboBox<String> searchOrSortBox = new JComboBox<>(new String[]{"Customer", "Admin"});
+        finalBottomPanel.add(new JLabel("Search/Sort By:"));
+        finalBottomPanel.add(searchOrSortBox);
+        JButton sortButton = new JButton("Sort");
+        finalBottomPanel.add(sortButton);
+        JTextField sortTextField = new JTextField("");
+        sortTextField.setPreferredSize(new Dimension(250, 30));
+        finalBottomPanel.add(sortTextField);
+        bottomPanel.add(finalBottomPanel);
+        add(bottomPanel, BorderLayout.SOUTH);
+
+        // Load users
+        loadUsers();
+
+        // Action listeners
         logoutButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 dispose();
                 new AdminDashboard(null, currentUser);
             }
         });
-        mainPanel.add(logoutButton, BorderLayout.SOUTH);
-
-        // Add buttons for adding, editing, and deleting users
-        JPanel buttonPanel = new JPanel(new FlowLayout());
-        JButton addButton = new JButton("Add User");
-        JButton editButton = new JButton("Edit User");
-        JButton deleteButton = new JButton("Delete User");
-        JButton moveButton = new JButton("Move User");
 
         addButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -80,7 +117,7 @@ public class CustomerManagementScreen extends JFrame {
             }
         });
 
-        editButton.addActionListener(new ActionListener() {
+        editUserButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 editUser();
             }
@@ -92,31 +129,31 @@ public class CustomerManagementScreen extends JFrame {
             }
         });
 
-        moveButton.addActionListener(new ActionListener() {
+        reactiveButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                moveUser();
+                moveUser(inactiveArea, true);
             }
         });
 
-        buttonPanel.add(addButton);
-        buttonPanel.add(editButton);
-        buttonPanel.add(deleteButton);
-        buttonPanel.add(moveButton);
-        mainPanel.add(buttonPanel, BorderLayout.NORTH);
+        inactiveButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                moveUser(activeArea, false);
+            }
+        });
 
-        add(mainPanel);
-
-        // Load users
-        loadUsers();
-
-        // Action listeners
-        userTypeComboBox.addActionListener(new ActionListener() {
+        sortButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 loadUsers();
             }
         });
 
-        sortByComboBox.addActionListener(new ActionListener() {
+        searchOrSortBox.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                loadUsers();
+            }
+        });
+
+        sortOrderBox.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 loadUsers();
             }
@@ -129,16 +166,16 @@ public class CustomerManagementScreen extends JFrame {
         });
 
         // Add MouseListener to activeCustomersPane for double-click events
-        activeCustomersPane.addMouseListener(new MouseAdapter() {
+        activeArea.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
-                    int pos = activeCustomersPane.viewToModel(e.getPoint());
+                    int pos = activeArea.viewToModel(e.getPoint());
                     if (pos >= 0) {
                         try {
                             int start = activeUsersDoc.getParagraphElement(pos).getStartOffset();
                             int end = activeUsersDoc.getParagraphElement(pos).getEndOffset();
-                            String selectedText = activeCustomersPane.getText(start, end - start).trim();
+                            String selectedText = activeArea.getText(start, end - start).trim();
                             User selectedUser = findUserByUserName(selectedText);
                             if (selectedUser != null) {
                                 showUserDetails(selectedUser);
@@ -152,16 +189,16 @@ public class CustomerManagementScreen extends JFrame {
         });
 
         // Add MouseListener to inactiveCustomersPane for double-click events
-        inactiveCustomersPane.addMouseListener(new MouseAdapter() {
+        inactiveArea.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
-                    int pos = inactiveCustomersPane.viewToModel(e.getPoint());
+                    int pos = inactiveArea.viewToModel(e.getPoint());
                     if (pos >= 0) {
                         try {
                             int start = inactiveUsersDoc.getParagraphElement(pos).getStartOffset();
                             int end = inactiveUsersDoc.getParagraphElement(pos).getEndOffset();
-                            String selectedText = inactiveCustomersPane.getText(start, end - start).trim();
+                            String selectedText = inactiveArea.getText(start, end - start).trim();
                             User selectedUser = findUserByUserName(selectedText);
                             if (selectedUser != null) {
                                 showUserDetails(selectedUser);
@@ -354,17 +391,20 @@ public class CustomerManagementScreen extends JFrame {
         }
     }
 
-    private void moveUser() {
-        String userName = JOptionPane.showInputDialog(this, "Enter user name to move:");
-        User userToMove = cafe.DB.getUsers().get(userName);
-        if (userToMove != null) {
-            boolean newActiveStatus = !userToMove.isActive();
-            userToMove.setActive(newActiveStatus);
-            cafe.DB.saveData();
-            loadUsers();
-            JOptionPane.showMessageDialog(this, "User moved successfully!");
+    private void moveUser(JTextArea area, boolean toActive) {
+        String selectedText = getSelectedText(area);
+        if (selectedText != null) {
+            User userToMove = findUserByUserName(selectedText);
+            if (userToMove != null) {
+                userToMove.setActive(toActive);
+                cafe.DB.saveData();
+                loadUsers();
+                JOptionPane.showMessageDialog(this, "User moved successfully!");
+            } else {
+                JOptionPane.showMessageDialog(this, "User not found!");
+            }
         } else {
-            JOptionPane.showMessageDialog(this, "User not found!");
+            JOptionPane.showMessageDialog(this, "No user selected!");
         }
     }
 
@@ -390,4 +430,16 @@ public class CustomerManagementScreen extends JFrame {
         }
         return null;
     }
+    private String getSelectedText(JTextArea area) {
+    int selectionStart = area.getSelectionStart();
+    int selectionEnd = area.getSelectionEnd();
+    if (selectionStart != selectionEnd) {
+        try {
+            return area.getText(selectionStart, selectionEnd - selectionStart).trim();
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+        }
+    }
+    return null;
+}
 }
