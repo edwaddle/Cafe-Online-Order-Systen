@@ -1,1 +1,2 @@
+Customer;nathan;choi;nathan.choi;nathan7902;1234Rex!;true;
 Customer;nathan;choi;nathan.choi@gmail.com;nathan4189;Password12#;true;
