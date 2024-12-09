@@ -50,10 +50,11 @@ public class CustomerDashboard extends JFrame {
         JPanel upperInnerLeftPanel = new JPanel();
         upperInnerLeftPanel.setPreferredSize(new Dimension(380, 30));
         upperInnerLeftPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 10, 10));
-        JCheckBox bOrLCheckBox = new JCheckBox("Breakfast/Lunch");
-        JCheckBox dinnerCheckbox = new JCheckBox("Dinner");
 
-        upperInnerLeftPanel.add(bOrLCheckBox);
+         breakfastCheckbox = new JCheckBox("Breakfast/Lunch");
+         dinnerCheckbox = new JCheckBox("Dinner");
+
+        upperInnerLeftPanel.add(breakfastCheckbox);
         upperInnerLeftPanel.add(dinnerCheckbox);
         innerLeftPanel.add(upperInnerLeftPanel);
 
@@ -196,15 +197,7 @@ public class CustomerDashboard extends JFrame {
         add(leftPanel, BorderLayout.WEST);
         add(rightPanel, BorderLayout.EAST);
 
-        // Initialize checkboxes for filters
-        breakfastCheckbox = new JCheckBox("Breakfast/Lunch");
-        dinnerCheckbox = new JCheckBox("Dinner");
-
-        // Add checkboxes to the filter panel
-        JPanel filterPanel = new JPanel();
-        filterPanel.add(breakfastCheckbox);
-        filterPanel.add(dinnerCheckbox);
-        add(filterPanel, BorderLayout.NORTH);
+       
 
         // Load menu items
         loadMenuItems();

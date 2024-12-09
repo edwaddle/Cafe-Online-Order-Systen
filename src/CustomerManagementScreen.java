@@ -57,18 +57,14 @@ public class CustomerManagementScreen extends JFrame {
         JPanel rightPanel = new JPanel(new BorderLayout(10, 10));
         JLabel activeLabel = new JLabel("Cafe Active Customers:");
         JLabel inactiveLabel = new JLabel("Cafe Inactive Customers:");
-        JTextArea activeArea = new JTextArea();
-        activeArea.setPreferredSize(new Dimension(380, 400));
-        JTextArea inactiveArea = new JTextArea();
-        inactiveArea.setPreferredSize(new Dimension(380, 400));
         JButton reactiveButton = new JButton("Re-activate");
         JButton inactiveButton = new JButton("Inactive");
 
         leftPanel.add(inactiveLabel, BorderLayout.NORTH);
-        leftPanel.add(new JScrollPane(inactiveArea), BorderLayout.CENTER);
+        leftPanel.add(new JScrollPane(inactiveCustomersPane), BorderLayout.CENTER);
         leftPanel.add(reactiveButton, BorderLayout.SOUTH);
         rightPanel.add(activeLabel, BorderLayout.NORTH);
-        rightPanel.add(new JScrollPane(activeArea), BorderLayout.CENTER);
+        rightPanel.add(new JScrollPane(activeCustomersPane), BorderLayout.CENTER);
         rightPanel.add(inactiveButton, BorderLayout.SOUTH);
         middlePanel.add(leftPanel);
         middlePanel.add(rightPanel);
@@ -131,13 +127,13 @@ public class CustomerManagementScreen extends JFrame {
 
         reactiveButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                moveUser(inactiveArea, true);
+                moveUser(inactiveCustomersPane, true);
             }
         });
 
         inactiveButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                moveUser(activeArea, false);
+                moveUser(activeCustomersPane, false);
             }
         });
 
@@ -166,16 +162,16 @@ public class CustomerManagementScreen extends JFrame {
         });
 
         // Add MouseListener to activeCustomersPane for double-click events
-        activeArea.addMouseListener(new MouseAdapter() {
+        activeCustomersPane.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
-                    int pos = activeArea.viewToModel(e.getPoint());
+                    int pos = activeCustomersPane.viewToModel(e.getPoint());
                     if (pos >= 0) {
                         try {
                             int start = activeUsersDoc.getParagraphElement(pos).getStartOffset();
                             int end = activeUsersDoc.getParagraphElement(pos).getEndOffset();
-                            String selectedText = activeArea.getText(start, end - start).trim();
+                            String selectedText = activeCustomersPane.getText(start, end - start).trim();
                             User selectedUser = findUserByUserName(selectedText);
                             if (selectedUser != null) {
                                 showUserDetails(selectedUser);
@@ -189,16 +185,16 @@ public class CustomerManagementScreen extends JFrame {
         });
 
         // Add MouseListener to inactiveCustomersPane for double-click events
-        inactiveArea.addMouseListener(new MouseAdapter() {
+        inactiveCustomersPane.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
-                    int pos = inactiveArea.viewToModel(e.getPoint());
+                    int pos = inactiveCustomersPane.viewToModel(e.getPoint());
                     if (pos >= 0) {
                         try {
                             int start = inactiveUsersDoc.getParagraphElement(pos).getStartOffset();
                             int end = inactiveUsersDoc.getParagraphElement(pos).getEndOffset();
-                            String selectedText = inactiveArea.getText(start, end - start).trim();
+                            String selectedText = inactiveCustomersPane.getText(start, end - start).trim();
                             User selectedUser = findUserByUserName(selectedText);
                             if (selectedUser != null) {
                                 showUserDetails(selectedUser);
@@ -215,15 +211,20 @@ public class CustomerManagementScreen extends JFrame {
     }
 
     private void loadUsers() {
+        System.out.println("Loading users...");
         try {
             activeUsersDoc.remove(0, activeUsersDoc.getLength());
             inactiveUsersDoc.remove(0, inactiveUsersDoc.getLength());
             List<User> users = new ArrayList<>(cafe.DB.getUsers().values());
     
+            System.out.println("Total users: " + users.size());
+    
             // Filter by user type
             users = users.stream()
                     .filter(user -> user.getRole().equals(userTypeComboBox.getSelectedItem()))
                     .collect(Collectors.toList());
+    
+            System.out.println("Filtered users: " + users.size());
     
             // Sort the users
             Utils.sortUsers(users, (String) sortByComboBox.getSelectedItem());
@@ -234,13 +235,21 @@ public class CustomerManagementScreen extends JFrame {
                 users = Utils.searchUsers(users, searchQuery);
             }
     
+            System.out.println("Users after search: " + users.size());
+    
             for (User user : users) {
                 if (user.isActive()) {
                     activeUsersDoc.insertString(activeUsersDoc.getLength(), user.getUserName() + "\n", null);
+                    System.out.println("Added active user: " + user.getUserName());
                 } else {
                     inactiveUsersDoc.insertString(inactiveUsersDoc.getLength(), user.getUserName() + "\n", null);
+                    System.out.println("Added inactive user: " + user.getUserName());
                 }
             }
+            activeCustomersPane.revalidate();
+            activeCustomersPane.repaint();
+            inactiveCustomersPane.revalidate();
+            inactiveCustomersPane.repaint();
         } catch (BadLocationException e) {
             e.printStackTrace();
         }
@@ -399,8 +408,8 @@ public class CustomerManagementScreen extends JFrame {
         }
     }
 
-    private void moveUser(JTextArea area, boolean toActive) {
-        String selectedText = getSelectedText(area);
+    private void moveUser(JTextPane pane, boolean toActive) {
+        String selectedText = getSelectedText(pane);
         if (selectedText != null) {
             User userToMove = findUserByUserName(selectedText);
             if (userToMove != null) {
@@ -438,16 +447,4 @@ public class CustomerManagementScreen extends JFrame {
         }
         return null;
     }
-    private String getSelectedText(JTextArea area) {
-    int selectionStart = area.getSelectionStart();
-    int selectionEnd = area.getSelectionEnd();
-    if (selectionStart != selectionEnd) {
-        try {
-            return area.getText(selectionStart, selectionEnd - selectionStart).trim();
-        } catch (BadLocationException e) {
-            e.printStackTrace();
-        }
-    }
-    return null;
-}
 }

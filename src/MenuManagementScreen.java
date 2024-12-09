@@ -27,6 +27,108 @@ public class MenuManagementScreen extends JFrame {
         this.userManager = new UserManager();
         this.menuManager = new MenuManager(cafe.DB.getMenu());
 
+        JFrame menuManagerDash = new JFrame();
+        menuManagerDash.setLayout(new BorderLayout(20,20));
+        menuManagerDash.setSize(800,800);
+        menuManagerDash.setResizable(false);
+        menuManagerDash.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        menuManagerDash.setVisible(true);
+        //top
+        JPanel topPanel = new JPanel();
+        topPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 10, 10)); 
+        topPanel.setPreferredSize(new Dimension(380, 30));
+        JLabel userLabel = new JLabel();
+        JButton logoutButton = new JButton("Logout");
+        userLabel.setText(currentUser.getFirstName() + " " + currentUser.getLastName() + " - " + currentUser.getUserName());
+        topPanel.add(userLabel);
+        topPanel.add(logoutButton);
+
+        JPanel upperInnerLeftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10,10));
+        upperInnerLeftPanel.setPreferredSize(new Dimension(380, 30));
+        upperInnerLeftPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 10, 10));
+
+         JCheckBox breakfastCheckbox = new JCheckBox("Breakfast/Lunch");
+         JCheckBox dinnerCheckbox = new JCheckBox("Dinner");
+
+        upperInnerLeftPanel.add(breakfastCheckbox);
+        upperInnerLeftPanel.add(dinnerCheckbox);
+
+        JPanel menuManagerDashInner = new JPanel();
+        menuManagerDashInner.add(upperInnerLeftPanel);
+        menuManagerDashInner.add(topPanel);
+        menuManagerDash.add(menuManagerDashInner, BorderLayout.NORTH);
+        //middle
+        JPanel leftPanel = new JPanel(new BorderLayout(10,10));
+        JPanel rightPanel = new JPanel(new BorderLayout(10,10));
+        JLabel activeLabel = new JLabel("Backup (Off-season) Menu");
+        JLabel inactiveLabel = new JLabel("Current Menu");
+        JTextArea activeArea = new JTextArea();
+        activeArea.setPreferredSize(new Dimension(380,400));
+        String activeText = "";
+        String inactiveText = "";
+        for (MenuItem item: cafe.DB.getMenu()){
+            if (item.isAvailable()){
+                activeText += item.getTitle() + ", " + item.getPrice() + "\n";
+            }
+            else{
+                activeText += item.getTitle() + ", " + item.getPrice() + "\n";
+            }
+            
+        }
+        activeArea.setText(activeText);
+        activeArea.setEditable(false);
+        JTextArea inactiveArea = new JTextArea();
+        inactiveArea.setPreferredSize(new Dimension(380,400));
+        inactiveArea.setText(inactiveText);
+        inactiveArea.setEditable(false);
+
+        JButton reactiveButton = new JButton("Re-activate");
+        JButton inactiveButton = new JButton("Inactive");
+
+        leftPanel.add(inactiveLabel, BorderLayout.NORTH);
+        leftPanel.add(inactiveArea, BorderLayout.CENTER);
+        leftPanel.add(reactiveButton, BorderLayout.SOUTH);
+        rightPanel.add(activeLabel, BorderLayout.NORTH);
+        rightPanel.add(activeArea, BorderLayout.CENTER);
+        rightPanel.add(inactiveButton  , BorderLayout.SOUTH);
+
+        menuManagerDash.add(leftPanel, BorderLayout.WEST);
+        menuManagerDash.add(rightPanel, BorderLayout.EAST);
+
+        //bottom
+        JPanel bottomPanel = new JPanel(new GridLayout(2,1,20,20));
+        JPanel buttonBottomPanel  = new JPanel(new GridLayout(1,3,30,30));
+        JButton addButton= new JButton("Add");
+        JButton editButton = new JButton("Edit");
+        JButton deleteButton = new JButton("Delete");
+        buttonBottomPanel.add(addButton);
+        buttonBottomPanel.add(editButton);
+        buttonBottomPanel.add(addButton);
+        buttonBottomPanel.add(deleteButton);
+        bottomPanel.add(buttonBottomPanel);
+
+        JPanel finalBottomPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 10));
+        JComboBox<String> sortOrderBox = new JComboBox<>(new String[]{"Ascending","Descending"});
+        finalBottomPanel.add(new JLabel("Sort Order:"));
+        finalBottomPanel.add(sortOrderBox);
+        JComboBox<String> searchOrSortBox = new JComboBox<>(new String[]{"Title","Description","ItemID","Price"});
+        finalBottomPanel.add(new JLabel("Search/Sort By:"));
+        finalBottomPanel.add(searchOrSortBox);
+        JButton sortButton = new JButton("Sort");
+        finalBottomPanel.add(sortButton);
+        JTextField searchTextField = new JTextField("");
+        searchTextField.setPreferredSize(new Dimension(200,30));
+        finalBottomPanel.add(searchTextField);
+        JButton searchButton = new JButton("Search");
+        finalBottomPanel.add(searchButton);
+        bottomPanel.add(finalBottomPanel, BorderLayout.SOUTH);
+
+        menuManagerDash.add(bottomPanel, BorderLayout.SOUTH);
+
+
+
+        /* 
+
         setTitle("Menu Management");
         setSize(800, 600);
         setLocationRelativeTo(null);
@@ -62,12 +164,7 @@ public class MenuManagementScreen extends JFrame {
 
         // Add a logout button
         JButton logoutButton = new JButton("Logout");
-        logoutButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                dispose();
-                new AdminDashboard(null, currentUser);
-            }
-        });
+        
         mainPanel.add(logoutButton, BorderLayout.SOUTH);
 
         // Add buttons for adding, editing, and deleting items
@@ -76,6 +173,22 @@ public class MenuManagementScreen extends JFrame {
         JButton editButton = new JButton("Edit Item");
         JButton deleteButton = new JButton("Delete Item");
         JButton moveButton = new JButton("Move Item");
+
+         buttonPanel.add(addButton);
+        buttonPanel.add(editButton);
+        buttonPanel.add(deleteButton);
+        buttonPanel.add(moveButton);
+        mainPanel.add(buttonPanel, BorderLayout.NORTH);
+
+        add(mainPanel);
+         */
+
+        logoutButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                dispose();
+                new AdminDashboard(null, currentUser);
+            }
+        });
 
         addButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -94,20 +207,13 @@ public class MenuManagementScreen extends JFrame {
                 deleteMenuItem();
             }
         });
-
+        /* 
         moveButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 moveMenuItem();
             }
         });
-
-        buttonPanel.add(addButton);
-        buttonPanel.add(editButton);
-        buttonPanel.add(deleteButton);
-        buttonPanel.add(moveButton);
-        mainPanel.add(buttonPanel, BorderLayout.NORTH);
-
-        add(mainPanel);
+        */
 
         // Load menu items
         loadMenuItems();
