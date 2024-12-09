@@ -219,21 +219,21 @@ public class CustomerManagementScreen extends JFrame {
             activeUsersDoc.remove(0, activeUsersDoc.getLength());
             inactiveUsersDoc.remove(0, inactiveUsersDoc.getLength());
             List<User> users = new ArrayList<>(cafe.DB.getUsers().values());
-
+    
             // Filter by user type
             users = users.stream()
                     .filter(user -> user.getRole().equals(userTypeComboBox.getSelectedItem()))
                     .collect(Collectors.toList());
-
+    
             // Sort the users
             Utils.sortUsers(users, (String) sortByComboBox.getSelectedItem());
-
+    
             // Search the users
             String searchQuery = searchField.getText();
             if (!searchQuery.isEmpty()) {
                 users = Utils.searchUsers(users, searchQuery);
             }
-
+    
             for (User user : users) {
                 if (user.isActive()) {
                     activeUsersDoc.insertString(activeUsersDoc.getLength(), user.getUserName() + "\n", null);
@@ -267,7 +267,7 @@ public class CustomerManagementScreen extends JFrame {
         JPasswordField passwordField = new JPasswordField(10);
         JComboBox<String> userTypeComboBox = new JComboBox<>(new String[]{"Customer", "Admin"});
         JComboBox<String> statusComboBox = new JComboBox<>(new String[]{"Active", "Inactive"});
-
+    
         JPanel panel = new JPanel(new GridLayout(6, 2));
         panel.add(new JLabel("User Type:"));
         panel.add(userTypeComboBox);
@@ -281,7 +281,7 @@ public class CustomerManagementScreen extends JFrame {
         panel.add(passwordField);
         panel.add(new JLabel("Status:"));
         panel.add(statusComboBox);
-
+    
         int result = JOptionPane.showConfirmDialog(null, panel, "Add User", JOptionPane.OK_CANCEL_OPTION);
         if (result == JOptionPane.OK_OPTION) {
             String firstName = firstNameField.getText();
@@ -290,7 +290,7 @@ public class CustomerManagementScreen extends JFrame {
             String password = new String(passwordField.getPassword());
             String role = (String) userTypeComboBox.getSelectedItem();
             boolean isActive = statusComboBox.getSelectedItem().equals("Active");
-
+    
             String userName = generateUserName(firstName);
             User newUser;
             if (role.equals("Admin")) {
@@ -298,11 +298,11 @@ public class CustomerManagementScreen extends JFrame {
             } else {
                 newUser = new Customer(firstName, lastName, email, userName, password, isActive);
             }
-
+    
             try {
                 userManager.addUser(cafe.DB.getUsers(), newUser);
                 cafe.DB.saveData();
-                loadUsers();
+                loadUsers(); // Refresh the panels
             } catch (CustomExceptions.UserAlreadyExistsException e) {
                 JOptionPane.showMessageDialog(this, "User already exists!");
             }
