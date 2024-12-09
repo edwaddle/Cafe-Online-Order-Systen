@@ -4,10 +4,13 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Map;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class CustomerDashboard extends JFrame {
 
@@ -33,6 +36,7 @@ public class CustomerDashboard extends JFrame {
     private JRadioButton twentyTipButton;
 
     private JComboBox<String> sortByComboBox;
+    JComboBox<String> sortOrderBox;
     private JTextField searchField;
 
     public CustomerDashboard(User currentUser) {
@@ -55,7 +59,9 @@ public class CustomerDashboard extends JFrame {
         upperInnerLeftPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 10, 10));
 
          breakfastCheckbox = new JCheckBox("Breakfast/Lunch");
+         breakfastCheckbox.setSelected(true);
          dinnerCheckbox = new JCheckBox("Dinner");
+         dinnerCheckbox.setSelected(true);
 
         upperInnerLeftPanel.add(breakfastCheckbox);
         upperInnerLeftPanel.add(dinnerCheckbox);
@@ -144,7 +150,7 @@ public class CustomerDashboard extends JFrame {
 
         menuPane = new JTextPane();
         menuPane.setPreferredSize(new Dimension(380, 500));
-        menuDoc = cartPane.getStyledDocument();
+        menuDoc = menuPane.getStyledDocument();
         String menuItems = "";
         double menuCost = 0.0;
         for (MenuItem itemName : cafe.DB.getMenu()){
@@ -181,7 +187,7 @@ public class CustomerDashboard extends JFrame {
         bottomPanel.add(rightBottomPanel, BorderLayout.EAST);
 
         JPanel finalBottomPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 10));
-        JComboBox<String> sortOrderBox = new JComboBox<>(new String[]{"Ascending","Descending"});
+        sortOrderBox = new JComboBox<>(new String[]{"Ascending","Descending"});
         finalBottomPanel.add(new JLabel("Sort Order:"));
         finalBottomPanel.add(sortOrderBox);
         sortByComboBox = new JComboBox<>(new String[]{"Title","Description","ItemID","Price"});
@@ -228,13 +234,87 @@ public class CustomerDashboard extends JFrame {
                 addItemToCart();
             }
         });
+        fifteenTipButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e){
+                updateBill();
+            }
+        });
+        eighteenTipButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e){
+                updateBill();
+            }
+        });
+        twentyTipButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e){
+                updateBill();
+            }
+        });
+        noTipButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e){
+                updateBill();
+            }
+        });
+        sortButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e){
+                loadMenuItems();
+            }
+        });
+        cancelButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                cancelOrder();
+            }
+        });
+        orderButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                orderFunction();
+            }
+        });
+
+        
+        
 
         setVisible(true);
     }
 
+    private void cancelOrder(){
+
+        int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this menu item?", "Confirm Delete", JOptionPane.YES_NO_OPTION);
+        if (confirm == JOptionPane.YES_OPTION) {
+            try {
+                cartDoc.remove(0, cartDoc.getLength());
+                cartItems.clear();
+                JOptionPane.showMessageDialog(this, "Cancelled successfully!");
+                loadMenuItems();
+                updateBill();
+            } 
+            catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Menu item not found!");
+            }
+        }
+    }
+    private void orderFunction(){
+
+        int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you are ready to order?", "Confirm Delete", JOptionPane.YES_NO_OPTION);
+        if (confirm == JOptionPane.YES_OPTION) {
+            try {
+                cartDoc.remove(0, cartDoc.getLength());
+                cartItems.clear();
+                JOptionPane.showMessageDialog(this, "Ordered successfully!");
+                loadMenuItems();
+                updateBill();
+            } 
+            catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Menu item not found!");
+            }
+        }
+    }
+
     private void loadMenuItems() {
         try {
+            // Clear the menu document
             menuDoc.remove(0, menuDoc.getLength());
+    
+            // Filter menu items based on checkboxes
             List<MenuItem> filteredMenu = new ArrayList<>();
             for (MenuItem item : cafe.DB.getMenu()) {
                 if ((breakfastCheckbox.isSelected() && item instanceof PancakeMenuItem) ||
@@ -242,23 +322,72 @@ public class CustomerDashboard extends JFrame {
                     filteredMenu.add(item);
                 }
             }
-
+    
+            // Debug filtered menu size
+            System.out.println("Filtered Menu Size: " + filteredMenu.size());
+    
+            // Determine sorting criteria and order
+            String sortBy = (String) sortByComboBox.getSelectedItem(); // Sorting criteria
+            String sortOrder = (String) sortOrderBox.getSelectedItem(); // Sorting order (Ascending/Descending)
+    
+            System.out.println("Sort By: " + sortBy);
+            System.out.println("Sort Order: " + sortOrder);
+    
+            // Define comparator based on selected sorting criteria
+            Comparator<MenuItem> comparator = null;
+            switch (sortBy) {
+                case "Title":
+                    comparator = Comparator.comparing(MenuItem::getTitle, Comparator.nullsLast(String::compareTo));
+                    break;
+                case "Description":
+                    comparator = Comparator.comparing(MenuItem::getDescription, Comparator.nullsLast(String::compareTo));
+                    break;
+                case "ItemID":
+                    comparator = Comparator.comparing(MenuItem::getItemID, Comparator.nullsLast(String::compareTo));
+                    break;
+                case "Price":
+                    comparator = Comparator.comparing(MenuItem::getPrice);
+                    break;
+                default:
+                    comparator = Comparator.comparing(MenuItem::getTitle); // Default to Title
+                    break;
+            }
+    
+            // Apply descending order if selected
+            if ("Descending".equalsIgnoreCase(sortOrder)) {
+                comparator = comparator.reversed();
+            }
+    
+            // Ensure comparator is not null
+            if (comparator == null) {
+                comparator = Comparator.comparing(MenuItem::getTitle);
+            }
+    
             // Sort the filtered menu
-            Utils.sortMenuItems(filteredMenu, (String) sortByComboBox.getSelectedItem());
-
-            // Search the filtered menu
+            filteredMenu.sort(comparator);
+    
+            // Search the menu items using regex (if search query exists)
             String searchQuery = searchField.getText();
             if (!searchQuery.isEmpty()) {
-                filteredMenu = Utils.searchMenuItems(filteredMenu, searchQuery);
+                Pattern pattern = Pattern.compile(searchQuery, Pattern.CASE_INSENSITIVE);
+                filteredMenu = filteredMenu.stream()
+                        .filter(item -> pattern.matcher(item.getTitle()).find() ||
+                                        pattern.matcher(item.getDescription()).find() ||
+                                        pattern.matcher(item.getItemID()).find() ||
+                                        pattern.matcher(String.valueOf(item.getPrice())).find())
+                        .collect(Collectors.toList());
             }
-
+    
+            // Update the menu document with the sorted and filtered items
             for (MenuItem item : filteredMenu) {
-                menuDoc.insertString(menuDoc.getLength(), item.getTitle() + "\n", null);
+                menuDoc.insertString(menuDoc.getLength(), item.getTitle() + " " + item.getPrice() + "\n", null);
             }
+    
         } catch (BadLocationException e) {
             e.printStackTrace();
         }
     }
+
 
     private MenuItem findMenuItemByTitle(String title) {
         for (MenuItem item : cafe.DB.getMenu()) {
@@ -302,7 +431,6 @@ public class CustomerDashboard extends JFrame {
             String selectedString = matchedItem.getTitle() + " " + matchedItem.getPrice() + "\n";
             try {
                 
-                cartDoc.remove(0, cartDoc.getLength());
                 cartDoc.insertString(cartDoc.getLength(), selectedString, null);
                 cartItems.put(matchedItem.getTitle(), matchedItem.getPrice());
                 

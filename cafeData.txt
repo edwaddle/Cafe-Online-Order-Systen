@@ -2,4 +2,6 @@ Admin;asdf;asdf;asdf@g;1;1;true;
 Customer;asdf;asdf;asdf@g;asdf8820;asdf;true;
 Customer;1;1;1;12357;1;true;
 Diner;2;2;2;2.0;2;true
-Diner;1;1;2;2.0;2;true
+Pancake;1;1;1;1.0;1;true
+Pancake;3;3;3;3.0;3;true
+Diner;4;4;4;4.0;4;true

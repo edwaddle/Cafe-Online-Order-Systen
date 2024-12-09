@@ -173,7 +173,7 @@ public class MenuManagementScreen extends JFrame {
             }
         });
 
-        sortOrderBox.addActionListener(new ActionListener() {
+        sortButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 loadMenuItems();
             }
