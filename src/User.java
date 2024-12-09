@@ -19,10 +19,7 @@ public interface User extends Comparable<User>, Serializable {
     void cancelItem(MenuItem item);
     boolean canPlace();
     String getDetails();
-    void setFirstName(String firstName);
-    void setLastName(String lastName);
-    void setEmail(String email);
-    void setPassword(String password);
+    
 
     default boolean isAdmin() {
         return "Admin".equals(getRole());
