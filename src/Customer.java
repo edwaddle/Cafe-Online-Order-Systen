@@ -55,6 +55,25 @@ public class Customer implements User, Serializable {
     public String getRole() {
         return "Customer";
     }
+    @Override
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    @Override
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    @Override
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    @Override
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
     public void orderItems(MenuItem item) throws CustomExceptions.ItemNotAvailableException {
         if (item.isAvailable()) {

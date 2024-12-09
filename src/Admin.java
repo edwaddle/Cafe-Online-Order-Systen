@@ -56,6 +56,25 @@ public class Admin implements User, Serializable {
     public String getRole() {
         return "Admin";
     }
+    @Override
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    @Override
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    @Override
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    @Override
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
     public void orderItems(MenuItem item) throws CustomExceptions.ItemNotAvailableException {
         // A menu item is available only if the remaining count > 0 and in-season is true
@@ -130,4 +149,5 @@ public class Admin implements User, Serializable {
 
         return firstNameComparison;
     }
+    
 }

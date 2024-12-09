@@ -1,1 +1,2 @@
-Admin;Nathan;Choi;nathan.choi81@gmail.com;nathan7826;Rexchoi0!;true;
+Admin;nathan;choi;nathan@email.com;nathan2685;Nathan12#;true;
+Diner;dog;200;Dogmeat;2.0;5;false

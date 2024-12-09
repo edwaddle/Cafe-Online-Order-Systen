@@ -31,6 +31,11 @@ public class PancakeMenuItem implements MenuItem, Serializable {
     }
 
     @Override
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    @Override
     public String getItemID() {
         return itemID;
     }
@@ -41,8 +46,18 @@ public class PancakeMenuItem implements MenuItem, Serializable {
     }
 
     @Override
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    @Override
     public float getPrice() {
         return price;
+    }
+
+    @Override
+    public void setPrice(float price) {
+        this.price = price;
     }
 
     @Override

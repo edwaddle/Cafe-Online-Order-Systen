@@ -4,7 +4,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.Map;
 
 public class SignupScreen extends JDialog {
 
@@ -124,7 +123,7 @@ public class SignupScreen extends JDialog {
         if (!isValidEmail(email)) {
             return false;
         }
-        if (!isValidPassword(password)) {
+        if (!Utils.isValidPassword(password)) {
             return false;
         }
         return true;
@@ -135,25 +134,6 @@ public class SignupScreen extends JDialog {
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(email);
         return matcher.matches();
-    }
-
-    private boolean isValidPassword(String password) {
-        if (password.length() < 8) {
-            return false;
-        }
-        if (!password.matches(".*[A-Z].*")) {
-            return false;
-        }
-        if (!password.matches(".*[a-z].*")) {
-            return false;
-        }
-        if (!password.matches(".*\\d.*")) {
-            return false;
-        }
-        if (!password.matches(".*[!@#$%^&*()].*")) {
-            return false;
-        }
-        return true;
     }
 
     private String generateUserName(String firstName) {

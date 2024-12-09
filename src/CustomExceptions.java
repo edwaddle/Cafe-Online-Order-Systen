@@ -40,4 +40,9 @@ public class CustomExceptions {
             super(message);
         }
     }
+    public static class BadLocationException extends Exception {
+        public BadLocationException(String message) {
+            super(message);
+        }
+    }
 }

@@ -3,17 +3,20 @@ import java.util.Iterator;
 
 public interface MenuItem extends Comparable<MenuItem>, Serializable {
     String getTitle();
+    void setTitle(String title);
     String getItemID();
     String getDescription();
+    void setDescription(String description);
     float getPrice();
+    void setPrice(float price);
     int getCount();
     void setCount(int count);
 
     boolean isAvailable();
     void setAvailable(boolean available);
 
-    boolean isCurrent();  // New method
-    void setCurrent(boolean current);  // New method
+    boolean isCurrent();
+    void setCurrent(boolean current);
 
     String toDataString();
     void addItem(MenuItem item);
