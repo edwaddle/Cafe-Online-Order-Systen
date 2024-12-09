@@ -4,7 +4,9 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 
@@ -21,6 +23,7 @@ public class CustomerManagementScreen extends JFrame {
 
     private JComboBox<String> sortByComboBox;
     private JTextField searchField;
+    JComboBox<String> sortOrderBox;
 
     public CustomerManagementScreen(User currentUser) {
         this.currentUser = currentUser;
@@ -40,6 +43,7 @@ public class CustomerManagementScreen extends JFrame {
         userTypeComboBox = new JComboBox<>(new String[]{"Customer", "Admin"});
         sortByComboBox = new JComboBox<>(new String[]{"firstName", "lastName", "email", "userName"});
         searchField = new JTextField(20);
+        sortOrderBox = new JComboBox<>(new String[]{"Ascending", "Descending"});
 
         // Top Panel
         JPanel topPanel = new JPanel();
@@ -82,7 +86,6 @@ public class CustomerManagementScreen extends JFrame {
         bottomPanel.add(buttonBottomPanel);
 
         JPanel finalBottomPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
-        JComboBox<String> sortOrderBox = new JComboBox<>(new String[]{"Ascending", "Descending"});
         finalBottomPanel.add(new JLabel("Sort Order:"));
         finalBottomPanel.add(sortOrderBox);
         sortByComboBox = new JComboBox<>(new String[]{"firstName", "lastName", "email", "userName"});
@@ -213,30 +216,67 @@ public class CustomerManagementScreen extends JFrame {
     private void loadUsers() {
         System.out.println("Loading users...");
         try {
+            // Clear the existing content in the JTextPane components
             activeUsersDoc.remove(0, activeUsersDoc.getLength());
             inactiveUsersDoc.remove(0, inactiveUsersDoc.getLength());
+
+            // Get the list of users
             List<User> users = new ArrayList<>(cafe.DB.getUsers().values());
-    
+
             System.out.println("Total users: " + users.size());
-    
+
             // Filter by user type
             users = users.stream()
                     .filter(user -> user.getRole().equals(userTypeComboBox.getSelectedItem()))
                     .collect(Collectors.toList());
-    
+
             System.out.println("Filtered users: " + users.size());
-    
+
             // Sort the users
-            Utils.sortUsers(users, (String) sortByComboBox.getSelectedItem());
-    
-            // Search the users
+            String sortBy = (String) sortByComboBox.getSelectedItem();
+            Comparator<User> comparator = null;
+            switch (sortBy) {
+                case "firstName":
+                    comparator = Comparator.comparing(User::getFirstName);
+                    break;
+                case "lastName":
+                    comparator = Comparator.comparing(User::getLastName);
+                    break;
+                case "email":
+                    comparator = Comparator.comparing(User::getEmail);
+                    break;
+                case "userName":
+                    comparator = Comparator.comparing(User::getUserName);
+                    break;
+                default:
+                    // Default sorting by userName
+                    comparator = Comparator.comparing(User::getUserName);
+                    break;
+            }
+
+            // Check the sorting order
+            String sortOrder = (String) sortOrderBox.getSelectedItem();
+            if (sortOrder.equals("Descending")) {
+                comparator = comparator.reversed();
+            }
+
+            users.sort(comparator);
+
+            // Search the users using regex
             String searchQuery = searchField.getText();
             if (!searchQuery.isEmpty()) {
-                users = Utils.searchUsers(users, searchQuery);
+                Pattern pattern = Pattern.compile(searchQuery, Pattern.CASE_INSENSITIVE);
+                users = users.stream()
+                        .filter(user -> pattern.matcher(user.getUserName()).find() ||
+                                        pattern.matcher(user.getFirstName()).find() ||
+                                        pattern.matcher(user.getLastName()).find() ||
+                                        pattern.matcher(user.getEmail()).find())
+                        .collect(Collectors.toList());
             }
-    
+
             System.out.println("Users after search: " + users.size());
-    
+
+            // Insert the filtered and sorted users into the JTextPane components
             for (User user : users) {
                 if (user.isActive()) {
                     activeUsersDoc.insertString(activeUsersDoc.getLength(), user.getUserName() + "\n", null);
@@ -246,6 +286,8 @@ public class CustomerManagementScreen extends JFrame {
                     System.out.println("Added inactive user: " + user.getUserName());
                 }
             }
+
+            // Revalidate and repaint the JTextPane components to update the screen
             activeCustomersPane.revalidate();
             activeCustomersPane.repaint();
             inactiveCustomersPane.revalidate();
@@ -254,7 +296,6 @@ public class CustomerManagementScreen extends JFrame {
             e.printStackTrace();
         }
     }
-
     private User findUserByUserName(String userName) {
         return cafe.DB.getUsers().get(userName);
     }

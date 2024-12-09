@@ -1,3 +1,6 @@
 Customer;asdf;asdf;asdf@g;asdf8791;asdf;true;
 Customer;nathan;choi;nathan.choi;nathan7902;1234Rex!;true;
+Customer;Nathan;Choi;nathan@email;nathan8533;Rexchoi0!;true;
 Diner;asf;asdf;asdf;12.0;12;true
+Diner;Dog;200;dogmeat;2.0;10;true
+Diner;dog;1000;dog balls;10.0;17;true

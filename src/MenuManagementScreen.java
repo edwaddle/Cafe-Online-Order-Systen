@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Comparator;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class MenuManagementScreen extends JFrame {
 
@@ -21,6 +24,7 @@ public class MenuManagementScreen extends JFrame {
 
     private JComboBox<String> sortByComboBox;
     private JTextField searchField;
+    private JComboBox<String> sortOrderBox;
 
     public MenuManagementScreen(User currentUser) {
         this.currentUser = currentUser;
@@ -43,6 +47,7 @@ public class MenuManagementScreen extends JFrame {
         menuTypeComboBox = new JComboBox<>(new String[]{"Diner", "Pancake"});
         sortByComboBox = new JComboBox<>(new String[]{"Title", "Description", "ItemID", "Price"});
         searchField = new JTextField(20);
+        sortOrderBox = new JComboBox<>(new String[]{"Ascending", "Descending"});
 
         // Top Panel
         JPanel topPanel = new JPanel();
@@ -97,12 +102,10 @@ public class MenuManagementScreen extends JFrame {
         bottomPanel.add(buttonBottomPanel);
 
         JPanel finalBottomPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
-        JComboBox<String> sortOrderBox = new JComboBox<>(new String[]{"Ascending", "Descending"});
         finalBottomPanel.add(new JLabel("Sort Order:"));
         finalBottomPanel.add(sortOrderBox);
-        JComboBox<String> searchOrSortBox = new JComboBox<>(new String[]{"Title", "Description", "ItemID", "Price"});
         finalBottomPanel.add(new JLabel("Search/Sort By:"));
-        finalBottomPanel.add(searchOrSortBox);
+        finalBottomPanel.add(sortByComboBox);
         JButton sortButton = new JButton("Sort");
         finalBottomPanel.add(sortButton);
         JTextField searchTextField = new JTextField("");
@@ -162,6 +165,24 @@ public class MenuManagementScreen extends JFrame {
             }
         });
 
+        sortByComboBox.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                loadMenuItems();
+            }
+        });
+
+        sortOrderBox.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                loadMenuItems();
+            }
+        });
+
+        searchField.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                loadMenuItems();
+            }
+        });
+
         setVisible(true);
     }
 
@@ -178,12 +199,45 @@ public class MenuManagementScreen extends JFrame {
             }
 
             // Sort the menu items
-            Utils.sortMenuItems(menuItems, (String) sortByComboBox.getSelectedItem());
+            String sortBy = (String) sortByComboBox.getSelectedItem();
+            Comparator<MenuItem> comparator = null;
+            switch (sortBy) {
+                case "Title":
+                    comparator = Comparator.comparing(MenuItem::getTitle);
+                    break;
+                case "Description":
+                    comparator = Comparator.comparing(MenuItem::getDescription);
+                    break;
+                case "ItemID":
+                    comparator = Comparator.comparing(MenuItem::getItemID);
+                    break;
+                case "Price":
+                    comparator = Comparator.comparing(MenuItem::getPrice);
+                    break;
+                default:
+                    // Default sorting by Title
+                    comparator = Comparator.comparing(MenuItem::getTitle);
+                    break;
+            }
 
-            // Search the menu items
+            // Check the sorting order
+            String sortOrder = (String) sortOrderBox.getSelectedItem();
+            if (sortOrder.equals("Descending")) {
+                comparator = comparator.reversed();
+            }
+
+            menuItems.sort(comparator);
+
+            // Search the menu items using regex
             String searchQuery = searchField.getText();
             if (!searchQuery.isEmpty()) {
-                menuItems = Utils.searchMenuItems(menuItems, searchQuery);
+                Pattern pattern = Pattern.compile(searchQuery, Pattern.CASE_INSENSITIVE);
+                menuItems = menuItems.stream()
+                        .filter(item -> pattern.matcher(item.getTitle()).find() ||
+                                        pattern.matcher(item.getDescription()).find() ||
+                                        pattern.matcher(item.getItemID()).find() ||
+                                        pattern.matcher(String.valueOf(item.getPrice())).find())
+                        .collect(Collectors.toList());
             }
 
             for (MenuItem item : menuItems) {
