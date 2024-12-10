@@ -5,3 +5,4 @@ Diner;2;2;2;2.0;2;true
 Pancake;1;1;1;1.0;1;true
 Pancake;3;3;3;3.0;3;true
 Diner;4;4;4;4.0;4;true
+Diner;10;10;10;10.0;10;true

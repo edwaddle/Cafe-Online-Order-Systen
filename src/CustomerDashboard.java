@@ -269,6 +269,11 @@ public class CustomerDashboard extends JFrame {
                 orderFunction();
             }
         });
+        searchButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                loadMenuItems();
+            }
+        });
 
         
         
@@ -311,10 +316,8 @@ public class CustomerDashboard extends JFrame {
 
     private void loadMenuItems() {
         try {
-            // Clear the menu document
             menuDoc.remove(0, menuDoc.getLength());
     
-            // Filter menu items based on checkboxes
             List<MenuItem> filteredMenu = new ArrayList<>();
             for (MenuItem item : cafe.DB.getMenu()) {
                 if ((breakfastCheckbox.isSelected() && item instanceof PancakeMenuItem) ||
@@ -323,17 +326,14 @@ public class CustomerDashboard extends JFrame {
                 }
             }
     
-            // Debug filtered menu size
             System.out.println("Filtered Menu Size: " + filteredMenu.size());
     
-            // Determine sorting criteria and order
             String sortBy = (String) sortByComboBox.getSelectedItem(); // Sorting criteria
             String sortOrder = (String) sortOrderBox.getSelectedItem(); // Sorting order (Ascending/Descending)
     
             System.out.println("Sort By: " + sortBy);
             System.out.println("Sort Order: " + sortOrder);
     
-            // Define comparator based on selected sorting criteria
             Comparator<MenuItem> comparator = null;
             switch (sortBy) {
                 case "Title":
@@ -349,24 +349,22 @@ public class CustomerDashboard extends JFrame {
                     comparator = Comparator.comparing(MenuItem::getPrice);
                     break;
                 default:
-                    comparator = Comparator.comparing(MenuItem::getTitle); // Default to Title
+                    comparator = Comparator.comparing(MenuItem::getTitle); // default to Title
                     break;
             }
     
-            // Apply descending order if selected
             if ("Descending".equalsIgnoreCase(sortOrder)) {
                 comparator = comparator.reversed();
             }
-    
-            // Ensure comparator is not null
+        /* 
+           
             if (comparator == null) {
                 comparator = Comparator.comparing(MenuItem::getTitle);
             }
+            */
     
-            // Sort the filtered menu
             filteredMenu.sort(comparator);
     
-            // Search the menu items using regex (if search query exists)
             String searchQuery = searchField.getText();
             if (!searchQuery.isEmpty()) {
                 Pattern pattern = Pattern.compile(searchQuery, Pattern.CASE_INSENSITIVE);
@@ -378,7 +376,6 @@ public class CustomerDashboard extends JFrame {
                         .collect(Collectors.toList());
             }
     
-            // Update the menu document with the sorted and filtered items
             for (MenuItem item : filteredMenu) {
                 menuDoc.insertString(menuDoc.getLength(), item.getTitle() + " " + item.getPrice() + "\n", null);
             }
@@ -389,25 +386,7 @@ public class CustomerDashboard extends JFrame {
     }
 
 
-    private MenuItem findMenuItemByTitle(String title) {
-        for (MenuItem item : cafe.DB.getMenu()) {
-            if (item.getTitle().equals(title)) {
-                return item;
-            }
-        }
-        return null;
-    }
 
-    private void showItemDetails(MenuItem item) {
-        JOptionPane.showMessageDialog(this,
-                "Title: " + item.getTitle() + "\n" +
-                        "Description: " + item.getDescription() + "\n" +
-                        "Price: " + item.getPrice() + "\n" +
-                        "Count: " + item.getCount() + "\n" +
-                        "Available: " + item.isAvailable() + "\n" +
-                        "Current: " + item.isCurrent(),
-                "Item Details", JOptionPane.INFORMATION_MESSAGE);
-    }
 
     private void addItemToCart() {
         String selectedText = getSelectedText(menuPane);
@@ -478,20 +457,6 @@ public class CustomerDashboard extends JFrame {
         return null;
     }
 
-    private void removeItemFromCart(MenuItem item) {
-        try {
-            String itemTitle = item.getTitle();
-            String cartText = cartPane.getText();
-            int start = cartText.indexOf(itemTitle);
-            if (start >= 0) {
-                int end = start + itemTitle.length();
-                cartDoc.remove(start, end - start);
-                updateBill();
-            }
-        } catch (BadLocationException e) {
-            e.printStackTrace();
-        }
-    }
 
     private void updateBill() {
         try {

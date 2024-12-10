@@ -19,7 +19,8 @@ public class MenuManagementScreen extends JFrame {
     private JTextPane outOfSeasonPane;
     private StyledDocument inSeasonDoc;
     private StyledDocument outOfSeasonDoc;
-    private JComboBox<String> menuTypeComboBox;
+    JCheckBox breakfastCheckbox;
+    JCheckBox dinnerCheckBox; 
     private Map<String, String> nameToItemIDMap = new HashMap<>();
 
     private JComboBox<String> sortByComboBox;
@@ -32,7 +33,7 @@ public class MenuManagementScreen extends JFrame {
         this.menuManager = new MenuManager(cafe.DB.getMenu());
 
         setTitle("Menu Management");
-        setSize(800, 800);
+        setSize(900, 800);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -44,7 +45,7 @@ public class MenuManagementScreen extends JFrame {
         inSeasonPane.setEditable(false);
         outOfSeasonPane.setEditable(false);
 
-        menuTypeComboBox = new JComboBox<>(new String[]{"Diner", "Pancake"});
+        //menuTypeComboBox = new JComboBox<>(new String[]{"Diner", "Pancake"});
         sortByComboBox = new JComboBox<>(new String[]{"Title", "Description", "ItemID", "Price"});
         searchField = new JTextField(20);
         sortOrderBox = new JComboBox<>(new String[]{"Ascending", "Descending"});
@@ -59,10 +60,12 @@ public class MenuManagementScreen extends JFrame {
         topPanel.add(logoutButton);
 
         JPanel upperInnerLeftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
-        JCheckBox breakfastCheckbox = new JCheckBox("Breakfast/Lunch");
-        JCheckBox dinnerCheckbox = new JCheckBox("Dinner");
+        breakfastCheckbox = new JCheckBox("Breakfast/Lunch");
+        breakfastCheckbox.setSelected(true);
+        dinnerCheckBox = new JCheckBox("Dinner");
+        dinnerCheckBox.setSelected(true);
         upperInnerLeftPanel.add(breakfastCheckbox);
-        upperInnerLeftPanel.add(dinnerCheckbox);
+        upperInnerLeftPanel.add(dinnerCheckBox);
 
         JPanel menuManagerDashInner = new JPanel();
         menuManagerDashInner.setLayout(new BoxLayout(menuManagerDashInner, BoxLayout.X_AXIS));
@@ -173,6 +176,18 @@ public class MenuManagementScreen extends JFrame {
             }
         });
 
+        dinnerCheckBox.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                loadMenuItems();
+            }
+        });
+
+        breakfastCheckbox.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                loadMenuItems();
+            }
+        });
+
         sortButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 loadMenuItems();
@@ -195,7 +210,8 @@ public class MenuManagementScreen extends JFrame {
             nameToItemIDMap.clear();
             List<MenuItem> menuItems = new ArrayList<>();
             for (MenuItem item : cafe.DB.getMenu()) {
-                if (item.getMenuType().equals(menuTypeComboBox.getSelectedItem())) {
+                if ((breakfastCheckbox.isSelected() && item instanceof PancakeMenuItem) ||
+                    (dinnerCheckBox.isSelected() && item instanceof DinerMenuItem)) {
                     menuItems.add(item);
                 }
             }
@@ -222,7 +238,6 @@ public class MenuManagementScreen extends JFrame {
                     break;
             }
 
-            // Check the sorting order
             String sortOrder = (String) sortOrderBox.getSelectedItem();
             if (sortOrder.equals("Descending")) {
                 comparator = comparator.reversed();
@@ -230,7 +245,6 @@ public class MenuManagementScreen extends JFrame {
 
             menuItems.sort(comparator);
 
-            // Search the menu items using regex
             String searchQuery = searchField.getText();
             if (!searchQuery.isEmpty()) {
                 Pattern pattern = Pattern.compile(searchQuery, Pattern.CASE_INSENSITIVE);
@@ -264,16 +278,6 @@ public class MenuManagementScreen extends JFrame {
         return null;
     }
 
-    private void showItemDetails(MenuItem item) {
-        JOptionPane.showMessageDialog(this,
-                "Title: " + item.getTitle() + "\n" +
-                        "Description: " + item.getDescription() + "\n" +
-                        "Price: " + item.getPrice() + "\n" +
-                        "Count: " + item.getCount() + "\n" +
-                        "Available: " + item.isAvailable() + "\n" +
-                        "Current: " + item.isCurrent(),
-                "Item Details", JOptionPane.INFORMATION_MESSAGE);
-    }
 
     private void addMenuItem() {
         JTextField titleField = new JTextField(10);

@@ -30,7 +30,7 @@ public class CustomerManagementScreen extends JFrame {
         this.userManager = new UserManager();
 
         setTitle("Customer Management");
-        setSize(800, 800);
+        setSize(900, 800);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -96,6 +96,8 @@ public class CustomerManagementScreen extends JFrame {
         JTextField sortTextField = new JTextField("");
         sortTextField.setPreferredSize(new Dimension(250, 30));
         finalBottomPanel.add(sortTextField);
+        JButton searchButton = new JButton("Search");
+        finalBottomPanel.add(searchButton);
         bottomPanel.add(finalBottomPanel);
         add(bottomPanel, BorderLayout.SOUTH);
 
@@ -216,23 +218,19 @@ public class CustomerManagementScreen extends JFrame {
     private void loadUsers() {
         System.out.println("Loading users...");
         try {
-            // Clear the existing content in the JTextPane components
             activeUsersDoc.remove(0, activeUsersDoc.getLength());
             inactiveUsersDoc.remove(0, inactiveUsersDoc.getLength());
 
-            // Get the list of users
             List<User> users = new ArrayList<>(cafe.DB.getUsers().values());
 
             System.out.println("Total users: " + users.size());
 
-            // Filter by user type
             users = users.stream()
                     .filter(user -> user.getRole().equals(userTypeComboBox.getSelectedItem()))
                     .collect(Collectors.toList());
 
             System.out.println("Filtered users: " + users.size());
 
-            // Sort the users
             String sortBy = (String) sortByComboBox.getSelectedItem();
             Comparator<User> comparator = null;
             switch (sortBy) {
@@ -254,7 +252,6 @@ public class CustomerManagementScreen extends JFrame {
                     break;
             }
 
-            // Check the sorting order
             String sortOrder = (String) sortOrderBox.getSelectedItem();
             if (sortOrder.equals("Descending")) {
                 comparator = comparator.reversed();
@@ -262,7 +259,6 @@ public class CustomerManagementScreen extends JFrame {
 
             users.sort(comparator);
 
-            // Search the users using regex
             String searchQuery = searchField.getText();
             if (!searchQuery.isEmpty()) {
                 Pattern pattern = Pattern.compile(searchQuery, Pattern.CASE_INSENSITIVE);
@@ -276,7 +272,6 @@ public class CustomerManagementScreen extends JFrame {
 
             System.out.println("Users after search: " + users.size());
 
-            // Insert the filtered and sorted users into the JTextPane components
             for (User user : users) {
                 if (user.isActive()) {
                     activeUsersDoc.insertString(activeUsersDoc.getLength(), user.getUserName() + "\n", null);
@@ -287,7 +282,6 @@ public class CustomerManagementScreen extends JFrame {
                 }
             }
 
-            // Revalidate and repaint the JTextPane components to update the screen
             activeCustomersPane.revalidate();
             activeCustomersPane.repaint();
             inactiveCustomersPane.revalidate();
